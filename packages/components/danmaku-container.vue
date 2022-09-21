@@ -1,0 +1,249 @@
+<template>
+    <div class="wplayer-danmaku-container" ref="danmakuRef"></div>
+</template>
+  
+<script lang="ts">
+import { ref, reactive, defineComponent } from "vue";
+import { danmakuType, drawDanmakuType } from "../types/danmaku";
+
+export default defineComponent({
+    props: {
+        list: {
+            type: Array as () => Array<danmakuType>
+        }
+    },
+    setup(props) {
+        const danmakuRef = ref<HTMLElement | null>(null);
+        const paused = ref(true);//是否暂停
+        const currentTime = ref(0);//当前时间
+        const danmakuTunnel = reactive({
+            row: [] as Array<{
+                speed: number,
+                startTime: number,
+                fullEntryTime: number
+            }>, //轨道结束的时间
+            top: [] as Array<number>,
+            bottom: [] as Array<number>,
+        })
+
+        // 播放暂停
+        const startOrPause = (start: boolean) => {
+            const danmakuNodes = danmakuRef.value?.childNodes || [];
+            const state = start ? 'running' : 'paused';
+            for (let i = 0; i < danmakuNodes.length; i++) {
+                (danmakuNodes[i] as HTMLElement).style.animationPlayState = state;
+            }
+            paused.value = !start;
+        }
+
+        //清除弹幕
+        const clearDanmaku = () => {
+            danmakuTunnel.row = [];
+            danmakuTunnel.top = [];
+            danmakuTunnel.bottom = [];
+            danmakuRef.value!.innerHTML = "";
+        }
+
+        //设置弹幕不透明度
+        const setOpacity = (opacity: number) => {
+            if (danmakuRef.value) {
+                danmakuRef.value.style.opacity = (opacity * 0.01).toString();
+            }
+        }
+
+        //更新时间
+        const timeUpdate = (time: number) => {
+            if (Math.round(time) !== currentTime.value) {
+                currentTime.value = Math.round(time);
+                //绘制弹幕
+                if (!props.list) {
+                    return;
+                }
+                const currentDanmaku = props.list.filter((item: danmakuType) => {
+                    return item.time === currentTime.value;
+                })
+
+                currentDanmaku.map((item: danmakuType) => {
+                    drawDanmaku(item, false);
+                })
+            }
+        }
+
+        //获取滚动轨道
+        const getRowTunnel = (text: string, currentTime: number) => {
+            const danmakuWidth = text.length * 26;//暂定26px
+            const videoWidth = danmakuRef.value!.offsetWidth;
+            //当前弹幕运行速度
+            const danmakuSpeed = (danmakuWidth + videoWidth) / 5;
+            //弹幕完全进入时间
+            const fullEntryTime = currentTime + (danmakuWidth / danmakuSpeed);
+            //弹幕到达视频左边时间
+            const reachLeftTime = currentTime + (videoWidth / danmakuSpeed);
+            //轨道数量
+            const tunnelCount = Math.floor(danmakuRef.value!.offsetHeight / 26);
+            //尝试在现有的轨道内添加弹幕
+            for (let i = 0; i < danmakuTunnel.row.length; i++) {
+                if (danmakuTunnel.row[i].startTime + 5 < reachLeftTime) {
+                    danmakuTunnel.row[i].startTime = currentTime;
+                    danmakuTunnel.row[i].speed = danmakuSpeed;
+                    danmakuTunnel.row[i].fullEntryTime = fullEntryTime;
+                    return i;
+                }
+            }
+            //如果没有则尝试新增加轨道
+            if (danmakuTunnel.row.length < tunnelCount) {
+                danmakuTunnel.row.push({
+                    startTime: currentTime,
+                    speed: danmakuSpeed,
+                    fullEntryTime: fullEntryTime
+                });
+                return danmakuTunnel.row.length - 1;
+            }
+            //如果不可以新增轨道，则使用随机轨道
+            return Math.round(Math.random() * tunnelCount);
+        }
+
+        //获取固定轨道
+        const getFixedTunnel = (type: number, currentTime: number) => {
+            //当前弹幕结束时间
+            const duration = currentTime + 5;
+            //计算轨道数量
+            const tunnelCount = Math.floor(danmakuRef.value!.offsetHeight / 26);
+            switch (type) {
+                case 1:
+                    //遍历轨道
+                    for (let i = 0; i < danmakuTunnel.row.length; i++) {
+                        //如果轨道未被占用，选择该轨道
+                        if (danmakuTunnel.top[i] < duration) {
+                            danmakuTunnel.top[i] = duration;
+                            return i;
+                        }
+                    }
+                    //如果没有则尝试新增加轨道
+                    if (danmakuTunnel.top.length < tunnelCount) {
+                        danmakuTunnel.top.push(duration);
+                        return danmakuTunnel.top.length - 1;
+                    }
+                    break;
+                case 2:
+                    //遍历底部弹幕轨道
+                    for (let i = 0; i < danmakuTunnel.bottom.length; i++) {
+                        //如果轨道未被占用，选择该轨道
+                        if (danmakuTunnel.bottom[i] < duration) {
+                            danmakuTunnel.bottom[i] = duration;
+                            return i;
+                        }
+                    }
+                    //如果没有则尝试新增加轨道
+                    if (danmakuTunnel.bottom.length < tunnelCount) {
+                        danmakuTunnel.bottom.push(duration);
+                        return danmakuTunnel.bottom.length - 1;
+                    }
+                    break;
+            }
+            //如果不可以新增轨道，则使用随机轨道
+            return Math.round(Math.random() * tunnelCount);
+        }
+
+        const drawDanmaku = (draw: drawDanmakuType, send: boolean) => {
+            const item = document.createElement("span");
+            item.style.color = draw.color;
+            item.className = "danmaku-item";
+            //滚动弹幕
+            if (draw.type == 0) {
+                //设置轨道
+                const rowTunnel = getRowTunnel(draw.text, currentTime.value);
+                item.style.top = `${rowTunnel * 26}px`;
+                item.appendChild(document.createTextNode(draw.text));
+                if (send) {
+                    item.style.border = "1px solid red";
+                }
+            } else {
+                //固定弹幕
+                const fixedTunnel = getFixedTunnel(draw.type, currentTime.value);
+                item.style.width = "100%";
+                item.style.textAlign = "center";
+                item.style[draw.type === 1 ? 'top' : 'bottom'] = `${fixedTunnel * 26}px`;
+                //固定弹幕外层span的宽度为100%，如果给弹幕加上border会占满一行
+                //所以需要给文字再加一层span，并在该span上根据需要添加border
+                const textNode = document.createElement('span');
+                textNode.appendChild(document.createTextNode(draw.text));
+                if (send) {
+                    textNode.style.border = "1px solid red";
+                }
+                item.appendChild(textNode)
+            }
+
+            danmakuRef.value?.appendChild(item);
+            item.addEventListener("animationend", () => {
+                danmakuRef.value?.removeChild(item);
+            });
+            item.classList.add(`danmaku-${draw.type === 0 ? 'row' : 'center'}-move`);
+            //如果当前为暂停状态则暂停弹幕动画
+            if (paused.value) {
+                item.style.animationPlayState = "paused";
+            }
+        }
+
+        return {
+            danmakuRef,
+            startOrPause,
+            clearDanmaku,
+            timeUpdate,
+            drawDanmaku,
+            setOpacity
+        }
+    }
+});
+</script>
+  
+<style lang="less">
+.wplayer-danmaku-container {
+    z-index: 1;
+    position: absolute;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+
+    .danmaku-item {
+        position: absolute;
+        font-size: 22px;
+        white-space: nowrap;
+        text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000;
+    }
+
+    .danmaku-row-move {
+        will-change: transform;
+        animation: danmaku 5s linear;
+        animation-play-state: running;
+    }
+
+    .danmaku-center-move {
+        will-change: transform;
+        animation: danmaku-center 5s linear;
+        animation-play-state: running;
+    }
+
+    @keyframes danmaku {
+        from {
+            left: 100%;
+            transform: translate3d(0, 0, 0);
+        }
+
+        to {
+            left: 0;
+            transform: translate3d(-100%, 0, 0);
+        }
+    }
+
+    @keyframes danmaku-center {
+        from {
+            visibility: visible;
+        }
+
+        to {
+            visibility: visible;
+        }
+    }
+}
+</style>  
