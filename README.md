@@ -1,16 +1,64 @@
-# Vue 3 + TypeScript + Vite
+# vue-wplayer 弹幕视频播放器
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## 安装
+```
+npm install vue-wplayer
+```
 
-## Recommended IDE Setup
+## 示例
+```vue
+<template>
+  <div class="container">
+    <div class="player-container">
+      <w-player class="player" ></w-player>
+    </div>
+  </div>
+</template>
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+<script lang="ts">
+import { defineComponent } from 'vue';
+import WPlayer from 'vue-wplayer';
+import 'vue-wplayer/dist/style.css';
 
-## Type Support For `.vue` Imports in TS
+export default defineComponent({
+  components: {
+    WPlayer
+  }
+})
+</script>
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates. However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can enable Volar's Take Over mode by following these steps:
+<style>
+.container {
+  width: 720px;
+}
 
-1. Run `Extensions: Show Built-in Extensions` from VS Code's command palette, look for `TypeScript and JavaScript Language Features`, then right click and select `Disable (Workspace)`. By default, Take Over mode will enable itself if the default TypeScript extension is disabled.
-2. Reload the VS Code window by running `Developer: Reload Window` from the command palette.
+.player-container {
+  height: 0;
+  width: 100%;
+  padding-bottom: 56.25%;
+  position: relative;
 
-You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/volar/discussions/471).
+}
+
+.player {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: black;
+}
+</style>
+```
+
+## 参数
+|内容|类型|描述|默认值|
+|:-----|:-----|:-----|:-----|
+|resource|string 或 []|视频资源|-|
+|type|string|视频类型|'mp4'|
+|mobile|bool|是否为移动端|false|
+|theme|string|主题色|'#18a058'|
+|playbackSpeed|[]| 播放速度|[0.5, 0.75, 1, 1.5, 2]|
+|danmaku.open|bool|是否开启弹幕|false|
+|danmaku.placeholder|string|弹幕输入提示|'在这里输入弹幕哦~'|
+|danmaku.data|[]|弹幕数据|-|
+|danmaku.send|function|发送弹幕回调函数|-|
+
