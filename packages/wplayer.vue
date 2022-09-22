@@ -13,7 +13,7 @@
             </div>
             <!-- 弹幕容器 -->
             <danmaku-container ref="danmakuRef" v-if="playerOptions?.danmaku?.open && showDanmaku"
-               :paused="videoRef?.paused" :list="playerOptions?.danmaku?.data" />
+                :paused="videoRef?.paused" :list="playerOptions?.danmaku?.data" />
             <!-- 播放器消息 -->
             <player-msg v-show="showMsg" :msg="msg"></player-msg>
             <!-- 缓冲 -->
@@ -214,7 +214,10 @@ export default defineComponent({
 
         //右键菜单-开启菜单
         const openCtxMenu = (e: MouseEvent) => {
-            menuRef.value?.open(e, videoRef.value!);
+            const y = e.clientY - (videoRef.value?.getBoundingClientRect().top || 0);
+            const x = e.clientX - (videoRef.value?.getBoundingClientRect().left || 0);
+            const resolution = `${videoRef.value?.videoWidth} X ${videoRef.value?.videoHeight}`;
+            menuRef.value?.open(x, y, resolution);
         }
 
         //右键菜单-设置镜像

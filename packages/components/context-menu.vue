@@ -52,11 +52,12 @@ export default defineComponent({
     const resolution = ref("unknown");//分辨率
 
     //开启右键菜单
-    const open = (e: any, video: HTMLVideoElement) => {
-      let menu = document.getElementById("menu");
-      menu!.style.left = e.offsetX + "px";
-      menu!.style.top = e.offsetY + "px";
-      resolution.value = `${video.videoWidth} X ${video.videoHeight}`
+    const open = (x, y: number, res: string) => {
+      const menu = document.getElementById("menu");
+      menu!.style.top = `${y}px`;
+      menu!.style.left = `${x}px`;
+
+      resolution.value = res;
       showMenu.value = true;
     }
 
@@ -117,6 +118,7 @@ export default defineComponent({
 }
 
 .wplayer-shortcut-key {
+  z-index: 20;
   color: #fff;
   position: absolute;
   width: 260px;
