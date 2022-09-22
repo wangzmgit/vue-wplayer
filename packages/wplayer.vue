@@ -13,7 +13,7 @@
             </div>
             <!-- 弹幕容器 -->
             <danmaku-container ref="danmakuRef" v-if="playerOptions?.danmaku?.open && showDanmaku"
-                :list="playerOptions?.danmaku?.data" />
+               :paused="videoRef?.paused" :list="playerOptions?.danmaku?.data" />
             <!-- 播放器消息 -->
             <player-msg v-show="showMsg" :msg="msg"></player-msg>
             <!-- 缓冲 -->

@@ -10,11 +10,15 @@ export default defineComponent({
     props: {
         list: {
             type: Array as () => Array<danmakuType>
+        },
+        paused: {
+            type: Boolean,
+            default: true
         }
     },
     setup(props) {
         const danmakuRef = ref<HTMLElement | null>(null);
-        const paused = ref(true);//是否暂停
+        const isPaused = ref(props.paused);//是否暂停
         const currentTime = ref(0);//当前时间
         const danmakuTunnel = reactive({
             row: [] as Array<{
@@ -33,7 +37,7 @@ export default defineComponent({
             for (let i = 0; i < danmakuNodes.length; i++) {
                 (danmakuNodes[i] as HTMLElement).style.animationPlayState = state;
             }
-            paused.value = !start;
+            isPaused.value = !start;
         }
 
         //清除弹幕
@@ -80,7 +84,7 @@ export default defineComponent({
             //弹幕到达视频左边时间
             const reachLeftTime = currentTime + (videoWidth / danmakuSpeed);
             //轨道数量
-            const tunnelCount = Math.floor(danmakuRef.value!.offsetHeight / 26);
+            const tunnelCount = Math.floor(danmakuRef.value!.offsetHeight / 26) - 1;
             //尝试在现有的轨道内添加弹幕
             for (let i = 0; i < danmakuTunnel.row.length; i++) {
                 if (danmakuTunnel.row[i].startTime + 5 < reachLeftTime) {
@@ -106,22 +110,22 @@ export default defineComponent({
         //获取固定轨道
         const getFixedTunnel = (type: number, currentTime: number) => {
             //当前弹幕结束时间
-            const duration = currentTime + 5;
+            const duration = currentTime;
             //计算轨道数量
-            const tunnelCount = Math.floor(danmakuRef.value!.offsetHeight / 26);
+            const tunnelCount = Math.floor(danmakuRef.value!.offsetHeight / 26) - 1;
             switch (type) {
                 case 1:
                     //遍历轨道
                     for (let i = 0; i < danmakuTunnel.row.length; i++) {
                         //如果轨道未被占用，选择该轨道
-                        if (danmakuTunnel.top[i] < duration) {
-                            danmakuTunnel.top[i] = duration;
+                        if (danmakuTunnel.top[i] <= duration) {
+                            danmakuTunnel.top[i] = duration + 5;
                             return i;
                         }
                     }
                     //如果没有则尝试新增加轨道
                     if (danmakuTunnel.top.length < tunnelCount) {
-                        danmakuTunnel.top.push(duration);
+                        danmakuTunnel.top.push(duration + 5);
                         return danmakuTunnel.top.length - 1;
                     }
                     break;
@@ -129,14 +133,14 @@ export default defineComponent({
                     //遍历底部弹幕轨道
                     for (let i = 0; i < danmakuTunnel.bottom.length; i++) {
                         //如果轨道未被占用，选择该轨道
-                        if (danmakuTunnel.bottom[i] < duration) {
-                            danmakuTunnel.bottom[i] = duration;
+                        if (danmakuTunnel.bottom[i] <= duration) {
+                            danmakuTunnel.bottom[i] = duration + 5;
                             return i;
                         }
                     }
                     //如果没有则尝试新增加轨道
                     if (danmakuTunnel.bottom.length < tunnelCount) {
-                        danmakuTunnel.bottom.push(duration);
+                        danmakuTunnel.bottom.push(duration + 5);
                         return danmakuTunnel.bottom.length - 1;
                     }
                     break;
@@ -180,7 +184,7 @@ export default defineComponent({
             });
             item.classList.add(`danmaku-${draw.type === 0 ? 'row' : 'center'}-move`);
             //如果当前为暂停状态则暂停弹幕动画
-            if (paused.value) {
+            if (isPaused.value) {
                 item.style.animationPlayState = "paused";
             }
         }
