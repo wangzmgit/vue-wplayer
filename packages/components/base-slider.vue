@@ -55,10 +55,10 @@ export default defineComponent({
             let activeSize: number;
             let percentage: number;
             if (props.vertical) {
-                activeSize = sliderRef.value!.clientHeight - (e.pageY - sliderRef.value!.getBoundingClientRect().top);
+                activeSize = sliderRef.value!.clientHeight - (e.clientY - sliderRef.value!.getBoundingClientRect().top);
                 percentage = Math.round((activeSize / sliderRef.value!.clientHeight) * 100) / 100;
             } else {
-                activeSize = e.pageX - sliderRef.value!.getBoundingClientRect().left;
+                activeSize = e.clientX - sliderRef.value!.getBoundingClientRect().left;
                 percentage = Math.round((activeSize / sliderRef.value!.clientWidth) * 100) / 100;
             }
 
@@ -98,8 +98,8 @@ export default defineComponent({
             let clientX, clientY: number;
 
             if (e instanceof MouseEvent) {
-                clientX = e.pageX;
-                clientY = e.pageY;
+                clientX = e.clientX;
+                clientY = e.clientY;
             } else {
                 clientX = e.changedTouches[0].clientX;
                 clientY = e.changedTouches[0].clientY;
