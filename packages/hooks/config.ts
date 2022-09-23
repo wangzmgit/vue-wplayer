@@ -1,5 +1,5 @@
 export default function useConfig() {
-    const configItems = ["defaultQuality", "danmaku", "volume"];
+    const configItems = ["defaultQuality", "danmaku", "volume", "disableType", "disableLeave"];
     const getConfig = () => {
         const config = localStorage.getItem("wplayer-config");
         if (!config) {
@@ -34,7 +34,9 @@ export default function useConfig() {
         const config = {
             defaultQuality: 720,//默认分辨率
             danmaku: true,
-            volume: 80
+            volume: 80,
+            disableType: [],
+            disableLeave: 0,
         }
         localStorage.setItem("wplayer-config", JSON.stringify(config));
         return config;

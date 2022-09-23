@@ -10,3 +10,8 @@ export interface drawDanmakuType {
     type: number,
     text: string,
 }
+
+export interface filterDanmakuType {
+    disableType: Array<number>,
+    disableLeave: number,
+}

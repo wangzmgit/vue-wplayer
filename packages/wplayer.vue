@@ -13,7 +13,7 @@
             </div>
             <!-- 弹幕容器 -->
             <danmaku-container ref="danmakuRef" v-if="playerOptions?.danmaku?.open && showDanmaku"
-                :paused="videoRef?.paused" :list="playerOptions?.danmaku?.data" />
+                :overlapping="overlapping" :paused="videoRef?.paused" :list="danmakuList" />
             <!-- 播放器消息 -->
             <player-msg v-show="showMsg" :msg="msg"></player-msg>
             <!-- 缓冲 -->
@@ -23,8 +23,9 @@
         </div>
         <!-- 发送弹幕 -->
         <danmaku-send v-if="playerOptions?.danmaku?.open" :mobile="playerOptions.mobile" :show="showDanmaku"
-            :theme="playerOptions?.theme" :danmakuOptions="playerOptions.danmaku" @send="sendDanmaku"
-            @show-msg="changeMsg" @set-opacity="setDanmakuOpacity" @change-show="changeShowDanmaku" />
+            :disableType="disableType" :disableLeave="disableLeave" :theme="playerOptions?.theme"
+            :danmakuOptions="playerOptions.danmaku" @send="sendDanmaku" @show-msg="changeMsg"
+            @set-opacity="setDanmakuOpacity" @change-show="changeShowDanmaku" @set-filter="filterDanmaku" />
     </div>
 </template>
 
@@ -41,9 +42,8 @@ import ContextMenu from './components/context-menu.vue';
 import PlayerBuffering from './components/player-buffering.vue';
 import DanmakuContainer from './components/danmaku-container.vue';
 import { defineComponent, ref, onMounted, PropType, onBeforeUnmount } from 'vue';
-import { danmakuType } from './types/danmaku';
+import { danmakuType, filterDanmakuType } from './types/danmaku';
 import { OptionsType, handleOptions, QualityType } from './types/options';
-
 
 
 export default defineComponent({
@@ -178,6 +178,10 @@ export default defineComponent({
         }
 
         //弹幕相关
+        const overlapping = ref(true);//弹幕是否可重叠
+        const disableLeave: number = getConfigItem('disableLeave');
+        const disableType: Array<number> = getConfigItem('disableType');
+        const danmakuList = ref<Array<danmakuType>>(props.options?.danmaku?.data || [])
         const showDanmaku = ref(getConfigItem('danmaku'));
         const danmakuRef = ref<InstanceType<typeof DanmakuContainer> | null>(null); (null);
         const sendDanmaku = (danmakuForm: danmakuType) => {
@@ -208,6 +212,31 @@ export default defineComponent({
             showDanmaku.value = val;
             setConfig('danmaku', val);
         }
+
+        //是否为屏蔽类型
+        const isDisableType = (item: danmakuType, disableType: Array<number>) => {
+            if (disableType.includes(item.type))
+                return true;
+            if (disableType.includes(3) && (item.color !== '#fff' && item.color !== '#ffffff'))
+                return true;
+
+            return false;
+        }
+
+        //过滤弹幕
+        const filterDanmaku = (filter: filterDanmakuType) => {
+            setConfig('disableType', filter.disableType);
+            setConfig('disableLeave', filter.disableLeave);
+
+            overlapping.value = Boolean(filter.disableLeave > 3);
+            const originalDanmaku = props.options?.danmaku?.data || [];
+            danmakuList.value = originalDanmaku.filter((item) => {
+                return !isDisableType(item, filter.disableType) && (Math.floor(Math.random() * 10) + 1) > filter.disableLeave;
+            });
+        }
+
+        //限执行一遍过滤弹幕
+        filterDanmaku({ disableLeave, disableType });
 
         //右键菜单
         const menuRef = ref<InstanceType<typeof ContextMenu> | null>(null);
@@ -333,8 +362,13 @@ export default defineComponent({
             setVolume,
             //弹幕
             danmakuRef,
+            danmakuList,
             showDanmaku,
+            overlapping,
+            disableType,
+            disableLeave,
             sendDanmaku,
+            filterDanmaku,
             setDanmakuOpacity,
             changeShowDanmaku,
             //播放器消息

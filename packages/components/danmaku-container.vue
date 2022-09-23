@@ -14,6 +14,10 @@ export default defineComponent({
         paused: {
             type: Boolean,
             default: true
+        },
+        overlapping: {
+            type: Boolean,
+            default: true
         }
     },
     setup(props) {
@@ -23,8 +27,8 @@ export default defineComponent({
         const danmakuTunnel = reactive({
             row: [] as Array<{
                 speed: number,
-                startTime: number,
-                fullEntryTime: number
+                endTime: number,
+                // fullEntryTime: number
             }>, //轨道结束的时间
             top: [] as Array<number>,
             bottom: [] as Array<number>,
@@ -74,43 +78,43 @@ export default defineComponent({
         }
 
         //获取滚动轨道
-        const getRowTunnel = (text: string, currentTime: number) => {
-            const danmakuWidth = text.length * 26;//暂定26px
+        const getRowTunnel = (text: string, currentTime: number, duration: number = 5) => {
+            const danmakuWidth = text.length * 22;//暂定22px
             const videoWidth = danmakuRef.value!.offsetWidth;
             //当前弹幕运行速度
-            const danmakuSpeed = (danmakuWidth + videoWidth) / 5;
+            const danmakuSpeed = (danmakuWidth + videoWidth) / duration;
             //弹幕完全进入时间
-            const fullEntryTime = currentTime + (danmakuWidth / danmakuSpeed);
+            // const fullEntryTime = currentTime + (danmakuWidth / danmakuSpeed);
             //弹幕到达视频左边时间
             const reachLeftTime = currentTime + (videoWidth / danmakuSpeed);
             //轨道数量
             const tunnelCount = Math.floor(danmakuRef.value!.offsetHeight / 26) - 1;
             //尝试在现有的轨道内添加弹幕
             for (let i = 0; i < danmakuTunnel.row.length; i++) {
-                if (danmakuTunnel.row[i].startTime + 5 < reachLeftTime) {
-                    danmakuTunnel.row[i].startTime = currentTime;
+                if (danmakuTunnel.row[i].endTime < reachLeftTime) {
+                    danmakuTunnel.row[i].endTime = currentTime + duration;
                     danmakuTunnel.row[i].speed = danmakuSpeed;
-                    danmakuTunnel.row[i].fullEntryTime = fullEntryTime;
+                    // danmakuTunnel.row[i].fullEntryTime = fullEntryTime;
                     return i;
                 }
             }
             //如果没有则尝试新增加轨道
             if (danmakuTunnel.row.length < tunnelCount) {
                 danmakuTunnel.row.push({
-                    startTime: currentTime,
+                    endTime: currentTime + duration,
                     speed: danmakuSpeed,
-                    fullEntryTime: fullEntryTime
+                    // fullEntryTime: fullEntryTime
                 });
                 return danmakuTunnel.row.length - 1;
             }
-            //如果不可以新增轨道，则使用随机轨道
-            return Math.round(Math.random() * tunnelCount);
+            //如果不可以新增轨道但可以重叠，则使用随机轨道
+            if (props.overlapping)
+                return Math.round(Math.random() * tunnelCount);
+            return -1;
         }
 
         //获取固定轨道
         const getFixedTunnel = (type: number, currentTime: number) => {
-            //当前弹幕结束时间
-            const duration = currentTime;
             //计算轨道数量
             const tunnelCount = Math.floor(danmakuRef.value!.offsetHeight / 26) - 1;
             switch (type) {
@@ -118,14 +122,14 @@ export default defineComponent({
                     //遍历轨道
                     for (let i = 0; i < danmakuTunnel.row.length; i++) {
                         //如果轨道未被占用，选择该轨道
-                        if (danmakuTunnel.top[i] <= duration) {
-                            danmakuTunnel.top[i] = duration + 5;
+                        if (danmakuTunnel.top[i] <= currentTime) {
+                            danmakuTunnel.top[i] = currentTime + 5;
                             return i;
                         }
                     }
                     //如果没有则尝试新增加轨道
                     if (danmakuTunnel.top.length < tunnelCount) {
-                        danmakuTunnel.top.push(duration + 5);
+                        danmakuTunnel.top.push(currentTime + 5);
                         return danmakuTunnel.top.length - 1;
                     }
                     break;
@@ -133,20 +137,23 @@ export default defineComponent({
                     //遍历底部弹幕轨道
                     for (let i = 0; i < danmakuTunnel.bottom.length; i++) {
                         //如果轨道未被占用，选择该轨道
-                        if (danmakuTunnel.bottom[i] <= duration) {
-                            danmakuTunnel.bottom[i] = duration + 5;
+                        if (danmakuTunnel.bottom[i] <= currentTime) {
+                            danmakuTunnel.bottom[i] = currentTime + 5;
                             return i;
                         }
                     }
                     //如果没有则尝试新增加轨道
                     if (danmakuTunnel.bottom.length < tunnelCount) {
-                        danmakuTunnel.bottom.push(duration + 5);
+                        danmakuTunnel.bottom.push(currentTime + 5);
                         return danmakuTunnel.bottom.length - 1;
                     }
                     break;
             }
-            //如果不可以新增轨道，则使用随机轨道
-            return Math.round(Math.random() * tunnelCount);
+            //如果不可以新增轨道但可以重叠，则使用随机轨道
+            if (props.overlapping)
+                return Math.round(Math.random() * tunnelCount);
+
+            return -1;
         }
 
         const drawDanmaku = (draw: drawDanmakuType, send: boolean) => {
@@ -156,8 +163,12 @@ export default defineComponent({
             //滚动弹幕
             if (draw.type == 0) {
                 //设置轨道
-                const rowTunnel = getRowTunnel(draw.text, currentTime.value);
+                const duration = (danmakuRef.value?.offsetWidth || 750) / 150;
+                const rowTunnel = getRowTunnel(draw.text, currentTime.value, duration);
+                if (rowTunnel === -1) return;
                 item.style.top = `${rowTunnel * 26}px`;
+                item.style.animation = `danmaku ${duration}s linear`
+
                 item.appendChild(document.createTextNode(draw.text));
                 if (send) {
                     item.style.border = "1px solid red";
@@ -165,6 +176,7 @@ export default defineComponent({
             } else {
                 //固定弹幕
                 const fixedTunnel = getFixedTunnel(draw.type, currentTime.value);
+                if (fixedTunnel === -1) return;
                 item.style.width = "100%";
                 item.style.textAlign = "center";
                 item.style[draw.type === 1 ? 'top' : 'bottom'] = `${fixedTunnel * 26}px`;
@@ -218,7 +230,6 @@ export default defineComponent({
 
     .danmaku-row-move {
         will-change: transform;
-        animation: danmaku 5s linear;
         animation-play-state: running;
     }
 

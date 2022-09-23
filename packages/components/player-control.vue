@@ -14,13 +14,13 @@
             }}</span>
         </div>
         <!--控制栏中(全屏状态下的弹幕发送区)-->
-        <div class="control-center"></div>
+        <div :class="`control-center${fullState?'-full':''}`"></div>
         <!--控制栏右-->
         <div class="control-right">
             <base-button v-show="!mobile || fullState" class="control-right-btn" type="text" @click="showMenu('res')">
                 {{videoInfo.resText }}
             </base-button>
-            <div class="quality-menu" v-show="menus.res">
+            <div class="quality-menu" v-show="menus.quality">
                 <div v-for="(value,key) in videoInfo.resource" :key="key">
                     <base-button type="text" @click="setQuality(key)">{{value.name?value.name:key}}</base-button>
                 </div>
@@ -88,7 +88,7 @@ export default defineComponent({
         const menus: any = reactive({
             speed: false,
             volume: false,
-            res: false,
+            quality: false,
         })
 
         const videoInfo = reactive({
@@ -247,7 +247,9 @@ export default defineComponent({
             window.onresize = () => {
                 fullState.value = isFullScreen();
             }
+            //初始化音量
             videoInfo.volume = playerConfig.volume;
+            ctx.emit('volumeChange', videoInfo.volume);
         });
 
         return {
@@ -311,6 +313,10 @@ export default defineComponent({
     }
 
     .control-center {
+        width: calc(100% - 370px);
+    }
+
+    .control-center-full {
         width: calc(100% - 370px);
     }
 
@@ -378,6 +384,10 @@ export default defineComponent({
 .wplayer-control-box-mobile {
     .control-center {
         width: calc(100% - 280px);
+    }
+
+    .control-center-full {
+        width: calc(100% - 410px);
     }
 
     .control-right {

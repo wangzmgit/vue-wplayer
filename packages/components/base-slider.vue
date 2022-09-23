@@ -42,6 +42,10 @@ export default defineComponent({
         color: {
             type: String,
             default: '#18a058'
+        },
+        step: {
+            type: Boolean,
+            default: false
         }
     },
     setup(props, ctx) {
@@ -60,6 +64,10 @@ export default defineComponent({
             } else {
                 activeSize = e.clientX - sliderRef.value!.getBoundingClientRect().left;
                 percentage = Math.round((activeSize / sliderRef.value!.clientWidth) * 100) / 100;
+            }
+
+            if (props.step) {
+                percentage = Math.round(percentage * 10) / 10
             }
 
             activePercentage.value = percentage * 100;
@@ -115,6 +123,10 @@ export default defineComponent({
 
             percentage = Math.max(0, percentage);
             percentage = Math.min(percentage, 1);
+
+            if (props.step) {
+                percentage = Math.round(percentage * 10) / 10
+            }
 
             activePercentage.value = percentage * 100;
             ctx.emit('changeValue', Math.round((props.max - props.min) * percentage * 100) / 100);
