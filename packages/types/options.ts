@@ -31,7 +31,7 @@ export function handleOptions(options: OptionsType | undefined) {
     const defaultOptions: OptionsType = {
         resource: "",
         type: "mp4",//视频类型
-        theme: "#18a058",//主题色,
+        theme: "#4b5cc4",//主题色,
         mobile: false,
         danmaku: {
             open: false,

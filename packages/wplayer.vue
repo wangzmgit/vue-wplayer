@@ -47,6 +47,7 @@ import { OptionsType, handleOptions, QualityType } from './types/options';
 
 
 export default defineComponent({
+    name: "WPlayer",
     props: {
         options: {
             type: Object as PropType<OptionsType>,
@@ -71,7 +72,7 @@ export default defineComponent({
         //播放器事件-初始化
         const initVideo = () => {
             // 读取视频时长
-            controlRef.value!.setDuration(videoRef.value!.duration);
+            controlRef.value?.setDuration(videoRef.value?.duration || 0);
             //结束缓冲
             videoPlaying();
         }
@@ -86,20 +87,16 @@ export default defineComponent({
                 if (videoDOM.buffered.length) {
                     loaded = videoDOM.buffered.end(videoDOM.buffered.length - 1);
                 }
-                controlRef.value!.timeUpdate(currentTime, loaded);
+                controlRef.value?.timeUpdate(currentTime, loaded);
                 //更新弹幕
-                if (danmakuRef.value) {
-                    danmakuRef.value.timeUpdate(currentTime);
-                }
+                danmakuRef.value?.timeUpdate(currentTime);
             }
         }
 
         //播放器事件-视频结束
         const videoEnd = () => {
-            controlRef.value!.videoEnd();
-            if (danmakuRef.value) {
-                danmakuRef.value.clearDanmaku();
-            }
+            controlRef.value?.videoEnd();
+            danmakuRef.value?.clearDanmaku();
         }
 
         //是否缓冲中
@@ -109,9 +106,7 @@ export default defineComponent({
         const videoWaiting = () => {
             videoBuffering.value = true;
             //缓冲中，暂停弹幕
-            if (danmakuRef.value) {
-                danmakuRef.value.startOrPause(false);
-            }
+            danmakuRef.value?.startOrPause(false);
         }
 
         //播放器事件-缓冲结束
@@ -126,9 +121,9 @@ export default defineComponent({
         //设置视频播放状态
         const setPlayState = (play: boolean) => {
             if (play) {
-                videoRef.value!.play();
+                videoRef.value?.play();
             } else {
-                videoRef.value!.pause();
+                videoRef.value?.pause();
             }
             if (danmakuRef.value) {
                 danmakuRef.value.startOrPause(play);
@@ -186,7 +181,7 @@ export default defineComponent({
         const danmakuRef = ref<InstanceType<typeof DanmakuContainer> | null>(null); (null);
         const sendDanmaku = (danmakuForm: danmakuType) => {
             const tmpForm: danmakuType = {
-                time: Math.round(videoRef.value!.currentTime),
+                time: Math.round(videoRef.value?.currentTime || 0),
                 text: danmakuForm.text,
                 type: danmakuForm.type,
                 color: `#${danmakuForm.color}`,
@@ -196,7 +191,7 @@ export default defineComponent({
                 playerOptions.value.danmaku.send(tmpForm);
             }
             //绘制弹幕
-            danmakuRef.value!.drawDanmaku(tmpForm, true);
+            danmakuRef.value?.drawDanmaku(tmpForm, true);
         }
 
         //设置弹幕不透明度
@@ -259,8 +254,8 @@ export default defineComponent({
         const clickVideoContainer = (() => {
             let timer: number | null = null;
             return () => {
-                if (menuRef.value!.menuIsShow()) {
-                    menuRef.value!.close();
+                if (menuRef.value?.menuIsShow()) {
+                    menuRef.value?.close();
                 }
                 if (!timer) {
                     timer = window.setTimeout(() => {
@@ -268,7 +263,7 @@ export default defineComponent({
                         timer = null;
                     }, 300)
                 } else {
-                    controlRef.value!.playOrPause();
+                    controlRef.value?.playOrPause();
                     clearTimeout(timer!);
                     timer = null;
                 }
@@ -325,8 +320,8 @@ export default defineComponent({
             })));
             document.addEventListener("keyup", handleKeyUp);
 
-            controlRef.value!.setResource(resource, maxQuality.value);
-            controlRef.value!.setpPlaybackSpeed(options.playbackSpeed!);
+            controlRef.value?.setResource(resource, maxQuality.value);
+            controlRef.value?.setpPlaybackSpeed(options.playbackSpeed!);
             playerOptions.value = options;
         });
 
