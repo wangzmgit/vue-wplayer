@@ -352,7 +352,7 @@ export default defineComponent({
 /**弹幕样式菜单 */
 .wplayer-danmaku-menu {
     position: absolute;
-    z-index: 20;
+    z-index: 10;
     left: 106px;
     bottom: 40px;
     background: rgba(12, 12, 12, 0.8);
@@ -425,7 +425,7 @@ export default defineComponent({
 /**弹幕设置菜单 */
 .wplayer-danmaku-setting-menu {
     position: absolute;
-    z-index: 20;
+    z-index: 10;
     left: 76px;
     bottom: 40px;
     background: rgba(12, 12, 12, 0.8);

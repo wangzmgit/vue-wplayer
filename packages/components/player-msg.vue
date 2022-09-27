@@ -16,7 +16,7 @@ export default defineComponent({
 
 <style>
 .wplayer-msg {
-    z-index: 10;
+    z-index: 3;
     position: absolute;
     text-align: center;
     background: rgba(0, 0, 0, 0.6);

@@ -423,7 +423,7 @@ export default defineComponent({
     }
 
     .control {
-        z-index: 20;
+        z-index: 6;
         position: absolute;
         width: 100%;
         height: 50px;

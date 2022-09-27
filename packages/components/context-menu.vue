@@ -94,7 +94,7 @@ export default defineComponent({
 .wplayer-menu-box {
   position: absolute;
   width: 120px;
-  z-index: 30;
+  z-index: 8;
   background: rgba(12, 12, 12, 0.6);
 
   .menu-list {
@@ -118,7 +118,7 @@ export default defineComponent({
 }
 
 .wplayer-shortcut-key {
-  z-index: 20;
+  z-index: 10;
   color: #fff;
   position: absolute;
   width: 260px;

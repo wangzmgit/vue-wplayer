@@ -296,6 +296,8 @@ export default defineComponent({
 
     //图标
     .control-icon {
+        box-sizing: border-box;
+        padding: 2px;
         width: 30px;
         height: 30px;
         margin-top: 8px;
@@ -326,10 +328,10 @@ export default defineComponent({
         justify-content: space-between;
         width: 230px;
 
-        // 分辨率菜单
         .control-right-btn {
             padding: 0 10px;
-            margin-top: 8px;
+            margin-top: 9px;
+            line-height: 30px;
         }
 
         .quality-menu {
