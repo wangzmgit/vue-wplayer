@@ -369,6 +369,7 @@ export default defineComponent({
     .danmaku-menu-title {
         color: #fff;
         font-size: 12px;
+        line-height: 16px;
         margin: 12px 0 12px 10px;
     }
 
@@ -434,6 +435,7 @@ export default defineComponent({
     .danmaku-menu-title {
         color: #fff;
         font-size: 12px;
+        line-height: 16px;
         margin: 12px 0 12px 10px;
     }
 

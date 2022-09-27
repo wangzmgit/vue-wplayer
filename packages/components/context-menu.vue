@@ -134,14 +134,12 @@ export default defineComponent({
   tr {
 
     width: 260px;
+    background: transparent;
 
-    td:nth-child(1) {
+    td {
+      border: none;
       width: 130px;
-      text-align: center;
-    }
-
-    td:nth-child(2) {
-      width: 130px;
+      padding: 6px 10px;
       text-align: center;
     }
   }
