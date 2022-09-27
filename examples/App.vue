@@ -1,8 +1,9 @@
 <template>
   <div :class="mobile?'container-mobile':'container'">
     <div class="player-container">
-      <w-player class="player" :options="options"></w-player>
+      <w-player :key="key" class="player" :options="options"></w-player>
     </div>
+    <button class="toggle-btn" @click="toggle">{{`切换${mobile?'PC端':'移动端'}`}}</button>
   </div>
 </template>
 
@@ -11,6 +12,7 @@ import { ref } from 'vue';
 import { WPlayer } from '../packages';
 import danmakuList from './danmaku.json';
 
+const key = ref(0);
 const mobile = ref(false);
 
 const options = {
@@ -26,6 +28,12 @@ const options = {
     open: true,
     data: danmakuList
   }
+}
+
+const toggle = () => {
+  mobile.value = !mobile.value;
+  options.mobile = mobile.value;
+  key.value = Date.now();
 }
 </script>
 
@@ -70,6 +78,20 @@ body {
       position: absolute;
       background-color: black;
     }
+  }
+}
+
+.toggle-btn {
+  width: 120px;
+  height: 30px;
+  color: #fff;
+  border: none;
+  margin: 60px 0;
+  border-radius: 3px;
+  background-color: #4b5cc4;
+
+  &:hover {
+    background-color: #6372d6;
   }
 }
 </style>
