@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 dist-ssr
 *.local
+docs/.vuepress/.cache
+docs/.vuepress/.temp
 
 # Editor directories and files
 .vscode
