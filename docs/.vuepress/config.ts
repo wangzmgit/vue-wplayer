@@ -34,6 +34,13 @@ export default defineUserConfig({
         ],
         backToHome: '返回首页',
 
+        editLink: false,
+        editLinkText: "编辑此页",
+        lastUpdated: true,
+        lastUpdatedText: "更新时间",
+        contributors: false,
+        contributorsText: "贡献者",
+
         openInNewWindow: '在新窗口打开',
         toggleColorMode: '切换夜间模式',
         toggleSidebar: '切换侧边栏',

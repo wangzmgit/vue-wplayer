@@ -40,7 +40,7 @@ import flvjs from 'flv.js'
 
 const options = {
   resource: "视频链接",
-  type: "hls",
+  type: "flv",
   customType: function (player: HTMLVideoElement, url: string) {
     const flv = flvjs.createPlayer({
       type:'flv',
