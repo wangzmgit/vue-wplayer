@@ -23,6 +23,7 @@ const options = {
       url: 'http://upfile.myfz.fun/uploads%2F2022%2F09%2F24%2Fge4ZfU9g_137649199_u2-1-208.mp4'
     },
   },
+  blob: mobile.value,
   mobile: mobile.value,
   danmaku: {
     open: true,
@@ -33,6 +34,7 @@ const options = {
 const toggle = () => {
   mobile.value = !mobile.value;
   options.mobile = mobile.value;
+  options.blob = mobile.value;
   key.value = Date.now();
 }
 </script>

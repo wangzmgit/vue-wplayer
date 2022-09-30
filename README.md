@@ -60,6 +60,7 @@ const options = {
 |:-----|:-----|:-----|:-----|
 |resource|string 或 不同清晰度信息对象|视频资源|-|
 |type|string|视频类型|'mp4'|
+|blob|bool|mp4是否开启blob|false|
 |mobile|bool|是否为移动端|false|
 |theme|string|主题色|'#4b5cc4'|
 |playbackSpeed|[]| 播放速度|[0.5, 0.75, 1, 1.5, 2]|

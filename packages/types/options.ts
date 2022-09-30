@@ -21,6 +21,7 @@ export interface OptionsType {
     cover?: string,
     type?: string,//视频类型
     mobile?: boolean,//移动端
+    blob?: boolean,//mp4视频是否使用blob
     customType?: (player: HTMLVideoElement, src: string) => void,
     theme?: string,//主题色,
     danmaku?: danmakuOptionsType,
@@ -33,6 +34,7 @@ export function handleOptions(options: OptionsType | undefined) {
         type: "mp4",//视频类型
         theme: "#4b5cc4",//主题色,
         mobile: false,
+        blob: false,//mp4视频是否使用blob
         danmaku: {
             open: false,
             placeholder: "在这里输入弹幕哦~"

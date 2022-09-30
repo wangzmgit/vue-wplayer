@@ -166,7 +166,19 @@ export default defineComponent({
                     options.customType(videoRef.value!, resource[quality].url);
                 }
             } else {
-                videoRef.value!.src = resource[quality].url;
+                if (options.blob) {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', resource[quality].url);
+                    xhr.responseType = "blob";
+                    xhr.onload = () => {
+                        if (xhr.status === 200) {
+                            videoRef.value!.src = URL.createObjectURL(xhr.response);
+                        }
+                    }
+                    xhr.send();
+                } else {
+                    videoRef.value!.src = resource[quality].url;
+                }
             }
 
             setConfig('defaultQuality', quality);
@@ -230,7 +242,7 @@ export default defineComponent({
             });
         }
 
-        //限执行一遍过滤弹幕
+        //先执行一遍过滤弹幕
         filterDanmaku({ disableLeave, disableType });
 
         //右键菜单
