@@ -1,17 +1,17 @@
-export interface danmakuType {
+interface danmakuType {
     time: number,
     color: string,
     type: number,
     text: string,
 }
 
-export interface drawDanmakuType {
+interface drawDanmakuType {
     color: string,
     type: number,
     text: string,
 }
 
-export interface filterDanmakuType {
+interface filterDanmakuType {
     disableType: Array<number>,
     disableLeave: number,
 }

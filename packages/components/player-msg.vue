@@ -1,17 +1,12 @@
 <template>
-    <span class="wplayer-msg">{{ msg }}</span>
+    <span class="wplayer-msg">{{ props.msg }}</span>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+const props = defineProps<{ 
+    msg: string 
+}>();
 
-export default defineComponent({
-    props: {
-        msg: {
-            type: String,
-        },
-    },
-});
 </script>
 
 <style>

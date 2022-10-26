@@ -1,5 +1,5 @@
 <template>
-    <div class="wplayer-bottom-bar" :class="mobile?'wplayer-bottom-bar-mobile':''">
+    <div class="wplayer-bottom-bar" :class="mobile ? 'wplayer-bottom-bar-mobile' : ''">
         <div class="bottom-left">
             <span v-if="!mobile" class="danmaku-amount">{{ danmakuOptions.data?.length }}条弹幕</span>
             <div class="danmaku-switch">
@@ -17,7 +17,7 @@
             <base-button :disabled="!danmaku" class="send-btn" :color="theme" @click="sendDanmaku">发送</base-button>
         </div>
         <!--弹幕样式设置-->
-        <div v-show="menus.style" class="wplayer-danmaku-menu" :class="mobile?'wplayer-danmaku-menu-mobile':''">
+        <div v-show="menus.style" class="wplayer-danmaku-menu" :class="mobile ? 'wplayer-danmaku-menu-mobile' : ''">
             <div class="danmaku-menu-top">
                 <p class="danmaku-menu-title">弹幕颜色</p>
                 <div class="customize-color">
@@ -27,29 +27,29 @@
                 </div>
             </div>
             <div class="color-btn" @click="setColor">
-                <div v-for="item in ['fff','e54256','ffe133','ff7204','a0ee00','64dd17','39ccff','d500f9',
-                'fb7299','9b9b9b']" :name="item" :style="`background-color: #${item}`">
+                <div v-for="item in ['fff', 'e54256', 'ffe133', 'ff7204', 'a0ee00', '64dd17', '39ccff', 'd500f9',
+                'fb7299', '9b9b9b']" :name="item" :style="`background-color: #${item}`">
                 </div>
             </div>
             <p class="danmaku-menu-title">弹幕类型</p>
             <div class="danmaku-type">
                 <ul class="wplayer-radio-group" @click="setType">
-                    <li class="radio-item" v-for="(item, index) in ['滚动','顶部','底部']" :style="danmakuTypeStyle(index)"
-                        :name="index">{{item}}</li>
+                    <li class="radio-item" v-for="(item, index) in ['滚动', '顶部', '底部']" :style="danmakuTypeStyle(index)"
+                        :name="index">{{ item }}</li>
                 </ul>
             </div>
         </div>
         <!--弹幕类型设置-->
         <div v-show="menus.setting" class="wplayer-danmaku-setting-menu"
-            :class="mobile?'wplayer-danmaku-setting-menu-mobile':''">
-            <p class="danmaku-menu-title">弹幕屏蔽等级 ({{filterSetting.disableLeave}})</p>
+            :class="mobile ? 'wplayer-danmaku-setting-menu-mobile' : ''">
+            <p class="danmaku-menu-title">弹幕屏蔽等级 ({{ filterSetting.disableLeave }})</p>
             <base-slider class="opacity" :mobile="mobile" :max="10" step :color="theme"
                 :value="filterSetting.disableLeave" @change-value="setDisableLeave" />
             <p class="danmaku-menu-title">禁用弹幕类型</p>
             <div class="danmaku-filter">
                 <ul class="wplayer-radio-group" @click="setDisableType">
-                    <li class="radio-item" v-for="(item, index) in ['滚动','顶部','底部','彩色']"
-                        :style="disableDanmakuStyle(index)" :name="index">{{item}}</li>
+                    <li class="radio-item" v-for="(item, index) in ['滚动', '顶部', '底部', '彩色']"
+                        :style="disableDanmakuStyle(index)" :name="index">{{ item }}</li>
                 </ul>
             </div>
             <p class="danmaku-menu-title">弹幕不透明度</p>
@@ -58,190 +58,146 @@
     </div>
 </template>
   
-<script lang="ts">
-import { ref, reactive, defineComponent, PropType } from "vue";
+<script  setup lang="ts">
+import { ref, reactive } from "vue";
 import SvgIcon from "./svg-icon.vue";
 import BaseSlider from "./base-slider.vue";
 import BaseSwitch from "./base-switch.vue";
 import BaseButton from "./base-button.vue";
-import { danmakuType, filterDanmakuType } from "../types/danmaku";
-import { danmakuOptionsType } from '../types/options';
-export default defineComponent({
-    emits: ['setOpacity', 'changeShow', 'showMsg', 'send', 'setFilter'],
-    props: {
-        show: {
-            type: Boolean,
-            default: true
-        },
-        danmakuOptions: {
-            type: Object as PropType<danmakuOptionsType>,
-            required: true
-        },
-        mobile: {
-            type: Boolean,
-            default: false
-        },
-        theme: {
-            type: String,
-        },
-        disableType: {
-            type: Array as () => Array<number>,
-            default: []
-        },
-        disableLeave: {
-            type: Number,
-            default: 0
-        }
-    },
-    setup(props, ctx) {
-        const danmakuForm = reactive<danmakuType>({
-            time: 0,
-            text: "",
-            color: "fff",
-            type: 0,
-        });
 
-        const opacity = ref(100);
-        const danmaku = ref(props.show);
+const emit = defineEmits(['setOpacity', 'changeShow', 'showMsg', 'send', 'setFilter']);
+const props = withDefaults(defineProps<{
+    show: boolean
+    mobile: boolean
+    theme?: string
+    disableLeave?: number
+    disableType?: number[]
+    danmakuOptions: danmakuOptionsType
+}>(), {
+    show: true,
+    mobile: false,
+})
 
-        const filterSetting = reactive<filterDanmakuType>({
-            disableType: props.disableType,
-            disableLeave: props.disableLeave,
-        });
-
-
-        const menus: any = reactive({
-            setting: false,
-            style: false
-        });
-
-        //打开或关闭菜单
-        const showMenu = (name: string) => {
-            //关闭除了name以外所有的菜单
-            for (let key in menus) {
-                if (key === name) {
-                    menus[key] = !menus[key];
-                    continue;
-                }
-                menus[key] = false;
-            }
-        }
-
-        //设置弹幕发送类型
-        const setType = (e: Event) => {
-            const eElement = e.target as HTMLElement;
-            const type = parseInt(eElement.getAttribute('name') || '-1');
-            if (type >= 0)
-                danmakuForm.type = type;
-        }
-
-        //弹幕类型选择
-        const danmakuTypeStyle = (type: number) => {
-            if (danmakuForm.type === type) {
-                return {
-                    transition: 'all .3s',
-                    backgroundColor: props.theme
-                }
-            }
-            return {};
-        }
-
-        //禁用弹幕类型选中样式
-        const disableDanmakuStyle = (type: number) => {
-            if (filterSetting.disableType.includes(type)) {
-                return {
-                    transition: 'all .3s',
-                    backgroundColor: props.theme
-                }
-            }
-            return {};
-        }
-
-        //设置禁用弹幕类型
-        const setDisableType = (e: Event) => {
-            const eElement = e.target as HTMLElement;
-            const type = parseInt(eElement.getAttribute('name') || '-1');
-            if (type >= 0) {
-                const index = filterSetting.disableType.indexOf(type);
-                if (index === -1)
-                    filterSetting.disableType.push(type);
-                else
-                    filterSetting.disableType.splice(index, 1);
-            }
-            ctx.emit('setFilter', filterSetting);
-        }
-
-        //设置弹幕不透明度
-        const setOpacity = (val: number) => {
-            ctx.emit('setOpacity', val);
-        }
-
-        //设置弹幕屏蔽等级
-        const setDisableLeave = (val: number) => {
-            filterSetting.disableLeave = val;
-            ctx.emit('setFilter', filterSetting);
-        }
-
-        //设置弹幕颜色
-        const setColor = (e: Event) => {
-            const eElement = e.target as HTMLElement;
-            const color = eElement.getAttribute('name');
-            if (color)
-                danmakuForm.color = color;
-        }
-
-        //开启或关闭弹幕
-        const setShow = (val: boolean) => {
-            danmaku.value = val;
-            ctx.emit('changeShow', val);
-        }
-
-        //发送弹幕
-        const sendDanmaku = () => {
-            // showStyleMenu.value = false;
-            showMenu('');
-            if (danmakuForm.text == "") {
-                ctx.emit('showMsg', "弹幕内容不能为空");
-                return;
-            }
-            //验证颜色
-            let reg = new RegExp("^([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$");
-            if (danmakuForm.color.match(reg) == null) {
-                return;
-            }
-
-            ctx.emit('send', danmakuForm);
-            danmakuForm.text = "";
-        }
-
-        return {
-            menus,
-            showMenu,
-
-            danmaku,
-            // showStyleMenu,
-            // showSettingMenu,
-            opacity,
-            danmakuForm,
-            filterSetting,
-            setShow,
-            setType,
-            setOpacity,
-            setColor,
-            sendDanmaku,
-            danmakuTypeStyle,
-            disableDanmakuStyle,
-            setDisableType,
-            setDisableLeave
-        }
-    },
-    components: {
-        SvgIcon,
-        BaseSlider,
-        BaseSwitch,
-        BaseButton,
-    },
+const danmakuForm = reactive<danmakuType>({
+    time: 0,
+    text: "",
+    color: "fff",
+    type: 0,
 });
+
+const opacity = ref(100);
+const danmaku = ref(props.show);
+
+const filterSetting = reactive<filterDanmakuType>({
+    disableType: props.disableType || [],
+    disableLeave: props.disableLeave || 0,
+});
+
+
+const menus: any = reactive({
+    setting: false,
+    style: false
+});
+
+//打开或关闭菜单
+const showMenu = (name: string) => {
+    //关闭除了name以外所有的菜单
+    for (let key in menus) {
+        if (key === name) {
+            menus[key] = !menus[key];
+            continue;
+        }
+        menus[key] = false;
+    }
+}
+
+//设置弹幕发送类型
+const setType = (e: Event) => {
+    const eElement = e.target as HTMLElement;
+    const type = parseInt(eElement.getAttribute('name') || '-1');
+    if (type >= 0)
+        danmakuForm.type = type;
+}
+
+//弹幕类型选择
+const danmakuTypeStyle = (type: number) => {
+    if (danmakuForm.type === type) {
+        return {
+            transition: 'all .3s',
+            backgroundColor: props.theme
+        }
+    }
+    return {};
+}
+
+//禁用弹幕类型选中样式
+const disableDanmakuStyle = (type: number) => {
+    if (filterSetting.disableType.includes(type)) {
+        return {
+            transition: 'all .3s',
+            backgroundColor: props.theme
+        }
+    }
+    return {};
+}
+
+//设置禁用弹幕类型
+const setDisableType = (e: Event) => {
+    const eElement = e.target as HTMLElement;
+    const type = parseInt(eElement.getAttribute('name') || '-1');
+    if (type >= 0) {
+        const index = filterSetting.disableType.indexOf(type);
+        if (index === -1)
+            filterSetting.disableType.push(type);
+        else
+            filterSetting.disableType.splice(index, 1);
+    }
+    emit('setFilter', filterSetting);
+}
+
+//设置弹幕不透明度
+const setOpacity = (val: number) => {
+    emit('setOpacity', val);
+}
+
+//设置弹幕屏蔽等级
+const setDisableLeave = (val: number) => {
+    filterSetting.disableLeave = val;
+    emit('setFilter', filterSetting);
+}
+
+//设置弹幕颜色
+const setColor = (e: Event) => {
+    const eElement = e.target as HTMLElement;
+    const color = eElement.getAttribute('name');
+    if (color)
+        danmakuForm.color = color;
+}
+
+//开启或关闭弹幕
+const setShow = (val: boolean) => {
+    danmaku.value = val;
+    emit('changeShow', val);
+}
+
+//发送弹幕
+const sendDanmaku = () => {
+    // showStyleMenu.value = false;
+    showMenu('');
+    if (danmakuForm.text == "") {
+        emit('showMsg', "弹幕内容不能为空");
+        return;
+    }
+    //验证颜色
+    let reg = new RegExp("^([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$");
+    if (danmakuForm.color.match(reg) == null) {
+        return;
+    }
+
+    emit('send', danmakuForm);
+    danmakuForm.text = "";
+}
+
 </script>
   
 <style lang="less">

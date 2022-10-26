@@ -11,7 +11,7 @@
         <span>{{ resolution }}</span>
       </li>
       <li class="menu-item">
-        <span>版本:{{config.version}}</span>
+        <span>版本:{{ config.version }}</span>
       </li>
     </ul>
   </div>
@@ -40,53 +40,46 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { ref } from 'vue';
 import config from '../../package.json';
-import { ref, defineComponent } from 'vue';
 
-export default defineComponent({
-  emits: ['mirror'],
-  setup(_props, ctx) {
-    const showMenu = ref(false);//是否显示菜单
-    const showExplain = ref(false);//显示快捷键说明
-    const resolution = ref("unknown");//分辨率
 
-    //开启右键菜单
-    const open = (x, y: number, res: string) => {
-      const menu = document.getElementById("menu");
-      menu!.style.top = `${y}px`;
-      menu!.style.left = `${x}px`;
+const emit = defineEmits(["mirror"]);
 
-      resolution.value = res;
-      showMenu.value = true;
-    }
+const showMenu = ref(false);//是否显示菜单
+const showExplain = ref(false);//显示快捷键说明
+const resolution = ref("unknown");//分辨率
 
-    //关闭右键菜单
-    const close = () => {
-      showMenu.value = false;
-    }
+//开启右键菜单
+const open = (x: number, y: number, res: string) => {
+  const menu = document.getElementById("menu");
+  menu!.style.top = `${y}px`;
+  menu!.style.left = `${x}px`;
 
-    //镜像翻转
-    const videoMirror = () => {
-      ctx.emit('mirror');
-    }
+  resolution.value = res;
+  showMenu.value = true;
+}
 
-    //menu是否开启
-    const menuIsShow = () => {
-      return showMenu.value;
-    }
+//关闭右键菜单
+const close = () => {
+  showMenu.value = false;
+}
 
-    return {
-      config,
-      showMenu,
-      resolution,
-      showExplain,
-      open,
-      close,
-      menuIsShow,
-      videoMirror,
-    }
-  }
+//镜像翻转
+const videoMirror = () => {
+  emit('mirror');
+}
+
+//menu是否开启
+const menuIsShow = () => {
+  return showMenu.value;
+}
+
+defineExpose({
+  open,
+  close,
+  menuIsShow,
 });
 </script>
 

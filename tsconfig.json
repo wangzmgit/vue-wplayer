@@ -19,9 +19,10 @@
   "include": [
     "examples/**/*.ts",
     "examples/**/*.d.ts",
-    "examples/**/*.tsx",
     "examples/**/*.vue",
-    "packages/index.ts",
+    "packages/**/*.ts",
+    "packages/**/*.d.ts",
+    "packages/**/*.vue",
   ],
   "references": [
     {

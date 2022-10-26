@@ -4,36 +4,20 @@
   </svg>
 </template>
 
-<script lang="ts">
-
+<script setup lang="ts">
 import 'virtual:svg-icons-register';
-import { defineComponent, computed } from "vue";
+import { computed } from "vue";
 
-export default defineComponent({
-  props: {
-    prefix: {
-      type: String,
-      default: 'icon'
-    },
-    name: {
-      type: String,
-      required: true
-    },
-    color: {
-      type: String,
-      default: '#333'
-    },
-    size: {
-      type: String,
-      default: '1em'
-    }
-  },
-  setup(props) {
-    const symbolId = computed(() => `#${props.prefix}-${props.name}`)
-    return {
-      symbolId
-    }
-  }
-
+const props = withDefaults(defineProps<{
+  prefix?: string
+  name: string
+  color?: string
+  size?: string
+}>(), {
+  prefix: "icon",
+  color: "#333",
+  size: "1em"
 });
+
+const symbolId = computed(() => `#${props.prefix}-${props.name}`);
 </script>

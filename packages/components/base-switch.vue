@@ -7,34 +7,24 @@
     </div>
 </template>
   
-<script lang="ts">
-import { ref, defineComponent } from 'vue';
+<script setup lang="ts">
+import { ref } from 'vue';
 
-export default defineComponent({
-    emits: ['change'],
-    props: {
-        value: {
-            type: Boolean,
-            default: true,
-        },
-        color: {
-            type: String,
-            default: '#18a058'
-        }
-    },
-    setup(props, ctx) {
-        const open = ref(props.value);
-
-        const openSwitch = () => {
-            open.value = !open.value;
-            ctx.emit("change", open.value);
-        }
-        return {
-            open,
-            openSwitch
-        };
-    }
+const emit = defineEmits(["change"]);
+const props = withDefaults(defineProps<{
+    value: boolean
+    color: string
+}>(), {
+    value: true,
+    color: "#18a058",
 });
+
+const open = ref(props.value);
+
+const openSwitch = () => {
+    open.value = !open.value;
+    emit("change", open.value);
+}
 </script>
   
 <style lang="less">

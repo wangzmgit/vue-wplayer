@@ -1,6 +1,5 @@
 import { ref } from 'vue';
 import useConfig from './config';
-import { QualityType } from '../types/options';
 
 export default function useQuality() {
     const config = useConfig();

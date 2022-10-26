@@ -1,7 +1,7 @@
 {
   "name": "vue-wplayer",
   "private": false,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "license": "MIT",
   "author": "wzm",
   "description": "基于Vue3的弹幕视频播放器",

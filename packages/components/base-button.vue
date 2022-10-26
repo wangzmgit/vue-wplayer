@@ -3,42 +3,28 @@
         <slot></slot>
     </button>
 </template>
-<script lang="ts">
-import { defineComponent, } from 'vue';
+<script setup lang="ts">
+const props = withDefaults(defineProps<{
+    type?: string
+    disabled?: boolean
+    color?: string
+}>(), {
+    type: "primary",
+    disabled: false,
+    color: "#18a058"
+});
 
-export default defineComponent({
-    props: {
-        type: {
-            type: String,
-            default: "primary",
-        },
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
-        color: {
-            type: String,
-            default: '#18a058'
-        }
-    },
-    setup(props) {
-        const primaryStyle = () => {
-            if (props.type === "primary") {
-                return {
-                    backgroundColor: props.color,
-                    ":hover": {
-                        backgroundColor: 'red',
-                    }
-                }
-            }
-            return {};
-        }
-
+const primaryStyle = () => {
+    if (props.type === "primary") {
         return {
-            primaryStyle,
+            backgroundColor: props.color,
+            ":hover": {
+                backgroundColor: 'red',
+            }
         }
     }
-});
+    return {};
+}
 </script>
   
 <style lang="less">

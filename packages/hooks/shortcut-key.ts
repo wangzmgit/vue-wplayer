@@ -1,4 +1,3 @@
-import { ShortcutKeyType } from '../types/shortcut-key';
 
 export default function useShortcutKey() {
 
