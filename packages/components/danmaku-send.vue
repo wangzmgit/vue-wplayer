@@ -72,13 +72,13 @@ const props = withDefaults(defineProps<{
     theme?: string
     disableLeave?: number
     disableType?: number[]
-    danmakuOptions: danmakuOptionsType
+    danmakuOptions: DanmakuOptionsType
 }>(), {
     show: true,
     mobile: false,
 })
 
-const danmakuForm = reactive<danmakuType>({
+const danmakuForm = reactive<DanmakuType>({
     time: 0,
     text: "",
     color: "fff",
@@ -88,7 +88,7 @@ const danmakuForm = reactive<danmakuType>({
 const opacity = ref(100);
 const danmaku = ref(props.show);
 
-const filterSetting = reactive<filterDanmakuType>({
+const filterSetting = reactive<FilterDanmakuType>({
     disableType: props.disableType || [],
     disableLeave: props.disableLeave || 0,
 });

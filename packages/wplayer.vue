@@ -183,11 +183,11 @@ const handleDiffQualityResource = (quality: number, options: OptionsType) => {
 const overlapping = ref(true);//弹幕是否可重叠
 const disableLeave: number = getConfigItem('disableLeave');
 const disableType: Array<number> = getConfigItem('disableType');
-const danmakuList = ref<Array<danmakuType>>(props.options?.danmaku?.data || [])
+const danmakuList = ref<Array<DanmakuType>>(props.options?.danmaku?.data || [])
 const showDanmaku = ref(getConfigItem('danmaku'));
 const danmakuRef = ref<InstanceType<typeof DanmakuContainer> | null>(null); (null);
-const sendDanmaku = (danmakuForm: danmakuType) => {
-    const tmpForm: danmakuType = {
+const sendDanmaku = (danmakuForm: DanmakuType) => {
+    const tmpForm: DanmakuType = {
         time: Math.round(videoRef.value?.currentTime || 0),
         text: danmakuForm.text,
         type: danmakuForm.type,
@@ -216,7 +216,7 @@ const changeShowDanmaku = (val: boolean) => {
 }
 
 //是否为屏蔽类型
-const isDisableType = (item: danmakuType, disableType: Array<number>) => {
+const isDisableType = (item: DanmakuType, disableType: Array<number>) => {
     if (disableType.includes(item.type))
         return true;
     if (disableType.includes(3) && (item.color !== '#fff' && item.color !== '#ffffff'))
@@ -226,7 +226,7 @@ const isDisableType = (item: danmakuType, disableType: Array<number>) => {
 }
 
 //过滤弹幕
-const filterDanmaku = (filter: filterDanmakuType) => {
+const filterDanmaku = (filter: FilterDanmakuType) => {
     setConfig('disableType', filter.disableType);
     setConfig('disableLeave', filter.disableLeave);
 

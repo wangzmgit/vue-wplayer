@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { ref, reactive } from "vue";
 const props = withDefaults(defineProps<{
-    list: Array<danmakuType>
+    list: Array<DanmakuType>
     paused: boolean
     overlapping: boolean
 }>(), {
@@ -59,11 +59,11 @@ const timeUpdate = (time: number) => {
         if (!props.list) {
             return;
         }
-        const currentDanmaku = props.list.filter((item: danmakuType) => {
+        const currentDanmaku = props.list.filter((item: DanmakuType) => {
             return item.time === currentTime.value;
         })
 
-        currentDanmaku.map((item: danmakuType) => {
+        currentDanmaku.map((item: DanmakuType) => {
             drawDanmaku(item, false);
         })
     }
@@ -144,7 +144,7 @@ const getFixedTunnel = (type: number, currentTime: number) => {
     return -1;
 }
 
-const drawDanmaku = (draw: drawDanmakuType, send: boolean) => {
+const drawDanmaku = (draw: DrawDanmakuType, send: boolean) => {
     const item = document.createElement("span");
     item.style.color = draw.color;
     item.className = "danmaku-item";

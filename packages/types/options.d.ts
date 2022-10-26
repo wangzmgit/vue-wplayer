@@ -1,4 +1,3 @@
-// import { danmakuType } from "./danmaku"
 
 interface QualityType {
     [key: number]: {
@@ -8,11 +7,11 @@ interface QualityType {
     }
 }
 
-interface danmakuOptionsType {
+interface DanmakuOptionsType {
     open: boolean,
     placeholder?: string,
-    data?: Array<danmakuType>,
-    send?: (danmaku: danmakuType) => void
+    data?: Array<DanmakuType>,
+    send?: (danmaku: DanmakuType) => void
 }
 
 
@@ -24,6 +23,6 @@ interface OptionsType {
     blob?: boolean,//mp4视频是否使用blob
     customType?: (player: HTMLVideoElement, src: string) => void,
     theme?: string,//主题色,
-    danmaku?: danmakuOptionsType,
+    danmaku?: DanmakuOptionsType,
     playbackSpeed?: Array<number>,// 播放速度
 }
