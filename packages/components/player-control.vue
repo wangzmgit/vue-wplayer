@@ -17,8 +17,8 @@
         <div :class="`control-center${fullState ? '-full' : ''}`"></div>
         <!--控制栏右-->
         <div class="control-right">
-            <base-button v-show="!mobile || fullState" class="control-right-btn" type="text" @click="showMenu('res')">
-                {{ videoInfo.resText }}
+            <base-button v-show="!mobile || fullState" class="control-right-btn" type="text" @click="showMenu('quality')">
+                {{ videoInfo.qualityText }}
             </base-button>
             <div class="quality-menu" v-show="menus.quality">
                 <div v-for="(value, key) in videoInfo.resource" :key="key">
@@ -69,8 +69,6 @@ const props = withDefaults(defineProps<{
     buffering: false
 });
 
-const blockRef = ref<HTMLElement | null>(null);
-const timeSliderRef = ref<HTMLElement | null>(null);
 const { getConfig, setConfig } = useConfig();
 const playerConfig = getConfig();
 
@@ -94,8 +92,8 @@ const videoInfo = reactive({
     currentTime: 0,//当前时间
     loadedTime: 0,//当前加载时间
     maxQuality: 0,//最大分辨率
-    resText: "自动",//分辨率文本
-    currentRes: 0,//当前分辨率
+    qualityText: "默认",//分辨率文本
+    currentQuality: 0,//当前分辨率
     speedText: "倍速", //视频倍速
     playbackSpeed: [] as Array<number>,//倍速选项
     volume: 80, //音量
@@ -157,19 +155,20 @@ const currentTimeChange = (progress: number) => {
 //设置清晰度
 const setQuality = (quality: number) => {
     if (quality === 0) return;
-    if (videoInfo.currentRes === quality) return;
+    if (videoInfo.currentQuality === quality) return;
     //设置清晰度信息
-    videoInfo.currentRes = quality;
+    videoInfo.currentQuality = quality;
     if (videoInfo.resource[quality].name) {
-        videoInfo.resText = videoInfo.resource[quality].name!;
+        videoInfo.qualityText = videoInfo.resource[quality].name!;
     } else {
-        videoInfo.resText = quality.toString();
+        videoInfo.qualityText = quality.toString();
     }
 
     // 调用父组件设置视频资源和播放状态
     const play = videoInfo.currentPlayIcon === videoIconState.PAUSE ? true : false;
 
     emit("qualityChange", quality, videoInfo.currentTime, play);
+    showMenu("");
 }
 
 //设置倍速

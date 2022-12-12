@@ -135,7 +135,11 @@ const setProgress = (currentTime: number) => {
 
 //设置清晰度
 const setQuality = (quality: number, currentTime: number, play: boolean) => {
-    handleDiffQualityResource(quality, playerOptions.value!)
+    if (playerOptions.value?.customQualityChange) {
+        playerOptions.value.customQualityChange(quality);
+    } else {
+        handleDiffQualityResource(quality, playerOptions.value!)
+    }
     //设置播放时间和状态
     videoRef.value!.currentTime = currentTime;
     setPlayState(play);
@@ -255,7 +259,6 @@ const openCtxMenu = (e: MouseEvent) => {
 const setMirror = () => {
     videoRef.value?.classList.toggle("wplayer-mirror");
 }
-
 
 //右键菜单-单击隐藏菜单，双击视频暂停/播放
 const clickVideoContainer = (() => {

@@ -29,5 +29,9 @@ options: {
         }
     }
     ...
+    // 自定义清晰度切换
+    customQualityChange: function(quality) {
+
+    }
 }
 ```

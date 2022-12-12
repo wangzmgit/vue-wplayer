@@ -22,6 +22,7 @@ interface OptionsType {
     mobile?: boolean,//移动端
     blob?: boolean,//mp4视频是否使用blob
     customType?: (player: HTMLVideoElement, src: string) => void,
+    customQualityChange?: (quality: number) => void,
     theme?: string,//主题色,
     danmaku?: DanmakuOptionsType,
     playbackSpeed?: Array<number>,// 播放速度
