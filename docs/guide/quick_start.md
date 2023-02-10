@@ -17,7 +17,6 @@ yarn add vue-wplayer
 import { createApp } from 'vue'
 import App from './App.vue'
 import WPlayer from 'vue-wplayer';
-import 'vue-wplayer/dist/style.css';
 
 createApp(App).use(WPlayer).mount("#app");
 ```
@@ -27,7 +26,6 @@ createApp(App).use(WPlayer).mount("#app");
 在需要引入播放器的组件或页面内加入以下内容：
 ```js
 import { WPlayer } from 'vue-wplayer';
-import 'vue-wplayer/dist/style.css';
 ```
 
 ## 使用

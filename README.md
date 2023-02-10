@@ -25,8 +25,6 @@ npm install vue-wplayer
 
 <script setup lang="ts">
 import { WPlayer } from 'vue-wplayer';
-import 'vue-wplayer/dist/style.css';
-
 
 const options = {
   resource: "视频链接",

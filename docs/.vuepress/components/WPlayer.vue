@@ -3,13 +3,12 @@
 </template>
   
 <script lang="ts">
-import '../../../dist/style.css';
 import danmakuList from './danmaku.json';
 import { defineComponent, onMounted, shallowRef } from 'vue';
 
 export default defineComponent({
     setup() {
-        const dynamicComponent = shallowRef(null);
+        const dynamicComponent = shallowRef<any>(null);
         const options = {
             resource: {
                 360: {

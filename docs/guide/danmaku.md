@@ -38,3 +38,10 @@ export interface danmakuType {
 
 ### 发送弹幕
 在单击发送弹幕后，会执行 `options.danmaku.send` 中传入的函数，函数参数与 [#弹幕数据](#弹幕数据) 中的 `danmakuType` 相同。
+
+### 刷新弹幕数据
+默认情况下，修改`options.danmaku.data`中的数据，播放器弹幕数据不会改变，如果需要动态修改弹幕数据，可增加`danmaku-key`配置，如以下代码所示
+```vue
+  <w-player :options="options" :danmaku-key="0"></w-player>
+```
+`danmaku-key`为数字类型，改变后会重新加载`options.danmaku.data`中的数据，实现刷新弹幕列表。
