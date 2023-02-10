@@ -4,6 +4,8 @@
   
 <script setup lang="ts">
 import { ref, reactive } from "vue";
+import { DanmakuType, DrawDanmakuType } from "../types/danmaku";
+
 const props = withDefaults(defineProps<{
     paused: boolean
     overlapping: boolean
@@ -29,7 +31,6 @@ const danmakuTunnel = reactive({
 
 // 更新弹幕
 const updateDanmaku = (danmakus: Array<DanmakuType>) => {
-    console.log("更新弹幕")
     danmakuList = danmakus;
 }
 

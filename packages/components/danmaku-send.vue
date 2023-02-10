@@ -5,55 +5,65 @@
             <div class="danmaku-switch">
                 <base-switch :value="danmaku" :color="theme" @change="setShow"></base-switch>
             </div>
-            <svg-icon class="danmaku-setting" name="setting" color="#888" @click="showMenu('setting')" />
+            <!-- 弹幕设置 -->
+            <div class="control-btn setting-type">
+                <svg-icon class="setting-icon" name="setting" color="#888" />
+                <!--弹幕类型设置-->
+                <div class="wplayer-danmaku-setting-menu">
+                    <div class="setting-menu-content">
+                        <p class="danmaku-menu-title">弹幕屏蔽等级 ({{ filterSetting.disableLeave }})</p>
+                        <base-slider class="opacity" :mobile="mobile" :max="10" step :color="theme"
+                            :value="filterSetting.disableLeave" @change-value="setDisableLeave" />
+                        <p class="danmaku-menu-title">禁用弹幕类型</p>
+                        <div class="danmaku-filter">
+                            <ul class="wplayer-radio-group" @click="setDisableType">
+                                <li class="radio-item" v-for="(item, index) in ['滚动', '顶部', '底部', '彩色']"
+                                    :style="disableDanmakuStyle(index)" :name="index">{{ item }}</li>
+                            </ul>
+                        </div>
+                        <p class="danmaku-menu-title">弹幕不透明度</p>
+                        <base-slider class="opacity" :mobile="mobile" :color="theme" :value="opacity"
+                            @changeValue="setOpacity" />
+                    </div>
+                    <div class="placeholder"></div>
+                </div>
+            </div>
         </div>
         <div class="bottom-right">
             <div class="input-container">
-                <svg-icon class="font-style" color="#666" width="16px" height="16px" name="style"
-                    @click="showMenu('style')" />
+                <div class="control-btn setting-style">
+                    <svg-icon class="style-icon" color="#666" width="16px" height="16px" name="style" />
+                    <div class="wplayer-danmaku-menu">
+                        <!--弹幕样式设置-->
+                        <div class="style-menu-content">
+                            <div class="danmaku-menu-top">
+                                <p class="danmaku-menu-title">弹幕颜色</p>
+                                <div class="customize-color">
+                                    <span style="color: #fff">#</span>
+                                    <input type="text" v-model="danmakuForm.color" maxlength="6">
+                                    <div :style="`background-color: #${danmakuForm.color}`"></div>
+                                </div>
+                            </div>
+                            <div class="color-btn" @click="setColor">
+                                <div v-for="item in ['fff', 'e54256', 'ffe133', 'ff7204', 'a0ee00', '64dd17', '39ccff', 'd500f9',
+                                'fb7299', '9b9b9b']" :name="item" :style="`background-color: #${item}`">
+                                </div>
+                            </div>
+                            <p class="danmaku-menu-title">弹幕类型</p>
+                            <div class="danmaku-type">
+                                <ul class="wplayer-radio-group" @click="setType">
+                                    <li class="radio-item" v-for="(item, index) in ['滚动', '顶部', '底部']"
+                                        :style="danmakuTypeStyle(index)" :name="index">{{ item }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="placeholder"></div>
+                    </div>
+                </div>
                 <input v-model="danmakuForm.text" :placeholder="danmakuOptions.placeholder"
                     @keydown.enter="sendDanmaku" />
             </div>
             <base-button :disabled="!danmaku" class="send-btn" :color="theme" @click="sendDanmaku">发送</base-button>
-        </div>
-        <!--弹幕样式设置-->
-        <div v-show="menus.style" class="wplayer-danmaku-menu" :class="mobile ? 'wplayer-danmaku-menu-mobile' : ''">
-            <div class="danmaku-menu-top">
-                <p class="danmaku-menu-title">弹幕颜色</p>
-                <div class="customize-color">
-                    <span style="color: #fff">#</span>
-                    <input type="text" v-model="danmakuForm.color" maxlength="6">
-                    <div :style="`background-color: #${danmakuForm.color}`"></div>
-                </div>
-            </div>
-            <div class="color-btn" @click="setColor">
-                <div v-for="item in ['fff', 'e54256', 'ffe133', 'ff7204', 'a0ee00', '64dd17', '39ccff', 'd500f9',
-                'fb7299', '9b9b9b']" :name="item" :style="`background-color: #${item}`">
-                </div>
-            </div>
-            <p class="danmaku-menu-title">弹幕类型</p>
-            <div class="danmaku-type">
-                <ul class="wplayer-radio-group" @click="setType">
-                    <li class="radio-item" v-for="(item, index) in ['滚动', '顶部', '底部']" :style="danmakuTypeStyle(index)"
-                        :name="index">{{ item }}</li>
-                </ul>
-            </div>
-        </div>
-        <!--弹幕类型设置-->
-        <div v-show="menus.setting" class="wplayer-danmaku-setting-menu"
-            :class="mobile ? 'wplayer-danmaku-setting-menu-mobile' : ''">
-            <p class="danmaku-menu-title">弹幕屏蔽等级 ({{ filterSetting.disableLeave }})</p>
-            <base-slider class="opacity" :mobile="mobile" :max="10" step :color="theme"
-                :value="filterSetting.disableLeave" @change-value="setDisableLeave" />
-            <p class="danmaku-menu-title">禁用弹幕类型</p>
-            <div class="danmaku-filter">
-                <ul class="wplayer-radio-group" @click="setDisableType">
-                    <li class="radio-item" v-for="(item, index) in ['滚动', '顶部', '底部', '彩色']"
-                        :style="disableDanmakuStyle(index)" :name="index">{{ item }}</li>
-                </ul>
-            </div>
-            <p class="danmaku-menu-title">弹幕不透明度</p>
-            <base-slider class="opacity" :mobile="mobile" :color="theme" :value="opacity" @changeValue="setOpacity" />
         </div>
     </div>
 </template>
@@ -64,6 +74,8 @@ import SvgIcon from "./svg-icon.vue";
 import BaseSlider from "./base-slider.vue";
 import BaseSwitch from "./base-switch.vue";
 import BaseButton from "./base-button.vue";
+import { DanmakuOptionsType } from "../types/options";
+import { DanmakuType, FilterDanmakuType } from "../types/danmaku";
 
 const emit = defineEmits(['setOpacity', 'changeShow', 'showMsg', 'send', 'setFilter']);
 const props = withDefaults(defineProps<{
@@ -92,24 +104,6 @@ const filterSetting = reactive<FilterDanmakuType>({
     disableType: props.disableType || [],
     disableLeave: props.disableLeave || 0,
 });
-
-
-const menus: any = reactive({
-    setting: false,
-    style: false
-});
-
-//打开或关闭菜单
-const showMenu = (name: string) => {
-    //关闭除了name以外所有的菜单
-    for (let key in menus) {
-        if (key === name) {
-            menus[key] = !menus[key];
-            continue;
-        }
-        menus[key] = false;
-    }
-}
 
 //设置弹幕发送类型
 const setType = (e: Event) => {
@@ -182,8 +176,6 @@ const setShow = (val: boolean) => {
 
 //发送弹幕
 const sendDanmaku = () => {
-    // showStyleMenu.value = false;
-    showMenu('');
     if (danmakuForm.text == "") {
         emit('showMsg', "弹幕内容不能为空");
         return;
@@ -211,6 +203,14 @@ defineExpose({
 </script>
   
 <style lang="less">
+.control-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
 .wplayer-bottom-bar {
     display: flex;
     align-items: center;
@@ -220,6 +220,13 @@ defineExpose({
     width: 100%;
     height: 40px;
     border-bottom: 1px solid #ebebeb;
+
+    // 空白占位
+    .placeholder {
+        width: 100%;
+        height: 10px;
+        background-color: transparent;
+    }
 
     .bottom-left {
         width: 200px;
@@ -239,13 +246,6 @@ defineExpose({
         .danmaku-switch {
             width: 40px;
         }
-
-        .danmaku-setting {
-            width: 20px;
-            height: 20px;
-            margin: 0 10px;
-            cursor: pointer;
-        }
     }
 
     .bottom-right {
@@ -255,23 +255,20 @@ defineExpose({
 
         .input-container {
             display: flex;
+            align-items: center;
             height: 26px;
             width: calc(100% - 60px);
             border-radius: 6px;
             background: #ebebeb;
-
-            .font-style {
-                padding: 3px 5px;
-                cursor: pointer;
-            }
 
             input {
                 padding: 0;
                 width: calc(100% - 50px);
                 border: none;
                 outline: none;
-                height: inherit;
+                line-height: 22px;
                 background-color: inherit;
+                vertical-align: middle
             }
         }
 
@@ -279,6 +276,139 @@ defineExpose({
             width: 72px;
             height: 26px;
             margin-left: 10px;
+        }
+    }
+}
+
+// 弹幕设置
+.setting-type {
+    .setting-icon {
+        width: 20px;
+        height: 20px;
+        margin: 0 10px;
+    }
+
+    &:hover {
+        .wplayer-danmaku-setting-menu {
+            display: block;
+        }
+    }
+
+    /**弹幕设置菜单 */
+    .wplayer-danmaku-setting-menu {
+        display: none;
+        position: absolute;
+        z-index: 10;
+        left: 0;
+        bottom: 30px;
+
+        .setting-menu-content {
+            background: rgba(12, 12, 12, 0.8);
+            width: 220px;
+            height: 180px;
+
+            .danmaku-menu-title {
+                color: #fff;
+                font-size: 12px;
+                line-height: 16px;
+                margin: 0;
+                padding: 12px 0 12px 10px;
+            }
+
+            .danmaku-filter {
+                margin: 0 10px;
+            }
+
+            .opacity {
+                width: 90% !important;
+                margin: 0 auto;
+            }
+        }
+    }
+}
+
+// 弹幕样式
+.setting-style {
+    .style-icon {
+        padding: 3px 5px;
+    }
+
+    &:hover {
+        .wplayer-danmaku-menu {
+            display: block;
+        }
+    }
+
+    /**弹幕样式菜单 */
+    .wplayer-danmaku-menu {
+        display: none;
+        position: absolute;
+        z-index: 10;
+        left: 106px;
+        bottom: 30px;
+
+        .style-menu-content {
+            background: rgba(12, 12, 12, 0.8);
+            width: 220px;
+            height: 200px;
+
+            .danmaku-menu-top {
+                display: flex;
+                height: 46px;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .danmaku-menu-title {
+                color: #fff;
+                font-size: 12px;
+                line-height: 16px;
+                margin: 12px 0 12px 10px;
+            }
+
+            .customize-color {
+                display: flex;
+                align-items: center;
+
+                input {
+                    width: 80px;
+                    height: 24px;
+                    margin: 0 8px 0 2px;
+                    background-color: transparent;
+                    color: #fff;
+                    border: 1px solid rgba(161, 161, 161, 0.2);
+
+                    &:focus {
+                        border-color: rgba(161, 161, 161, 0.2);
+                    }
+                }
+
+                div {
+                    width: 26px;
+                    height: 26px;
+                    border-radius: 50%;
+                    margin-right: 8px;
+                }
+            }
+
+            .color-btn {
+                display: grid;
+                grid-template-columns: repeat(5, 20%);
+
+                div {
+                    width: 26px;
+                    height: 26px;
+                    margin: 0 0 5px 8px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                }
+            }
+
+            /**切换弹幕类型 */
+            .danmaku-type {
+                margin-left: 8px;
+                box-sizing: border-box;
+            }
         }
     }
 }
@@ -312,111 +442,6 @@ defineExpose({
             margin-left: 10px;
         }
     }
-}
-
-
-/**弹幕样式菜单 */
-.wplayer-danmaku-menu {
-    position: absolute;
-    z-index: 10;
-    left: 106px;
-    bottom: 40px;
-    background: rgba(12, 12, 12, 0.8);
-    width: 220px;
-    height: 200px;
-
-    .danmaku-menu-top {
-        display: flex;
-        height: 46px;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .danmaku-menu-title {
-        color: #fff;
-        font-size: 12px;
-        line-height: 16px;
-        margin: 12px 0 12px 10px;
-    }
-
-    .customize-color {
-        display: flex;
-        align-items: center;
-
-        input {
-            width: 80px;
-            height: 24px;
-            margin: 0 8px 0 2px;
-            background-color: transparent;
-            color: #fff;
-            border: 1px solid rgba(161, 161, 161, 0.2);
-
-            &:focus {
-                border-color: rgba(161, 161, 161, 0.2);
-            }
-        }
-
-        div {
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-    }
-
-    .color-btn {
-        display: grid;
-        grid-template-columns: repeat(5, 20%);
-
-        div {
-            width: 26px;
-            height: 26px;
-            margin: 0 0 5px 8px;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-    }
-
-    /**切换弹幕类型 */
-    .danmaku-type {
-        margin-left: 8px;
-        box-sizing: border-box;
-    }
-}
-
-.wplayer-danmaku-menu-mobile {
-    left: 26px;
-}
-
-/**弹幕设置菜单 */
-.wplayer-danmaku-setting-menu {
-    position: absolute;
-    z-index: 10;
-    left: 76px;
-    bottom: 40px;
-    background: rgba(12, 12, 12, 0.8);
-    width: 220px;
-    height: 180px;
-
-    .danmaku-menu-title {
-        color: #fff;
-        font-size: 12px;
-        line-height: 16px;
-        margin: 12px 0 12px 10px;
-    }
-
-    .danmaku-filter {
-        margin: 0 10px;
-    }
-
-    .opacity {
-        width: 90% !important;
-        margin: 0 auto;
-    }
-}
-
-.wplayer-danmaku-setting-menu {
-    left: 0px;
 }
 
 /**单选按钮组 */

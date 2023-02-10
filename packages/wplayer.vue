@@ -41,9 +41,11 @@ import DanmakuSend from './components/danmaku-send.vue';
 import ContextMenu from './components/context-menu.vue';
 import PlayerBuffering from './components/player-buffering.vue';
 import DanmakuContainer from './components/danmaku-container.vue';
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 
 import { handleOptions } from "./hooks/options";
+import { DanmakuType, FilterDanmakuType } from './types/danmaku';
+import { OptionsType, QualityType } from './types/options';
 
 const props = defineProps<{
     danmakuKey?: number
@@ -259,12 +261,8 @@ const filterDanmaku = (filter: FilterDanmakuType) => {
     danmakuSendRef.value?.updateDanmakuCount(danmakuList.value.length);
 }
 
-//先执行一遍过滤弹幕
-filterDanmaku({ disableLeave, disableType });
-
 // 监听传入弹幕改变
 watch(() => props.danmakuKey, () => {
-    console.log("改变")
     if (props.options.danmaku?.data) {
         danmakuList.value = props.options.danmaku.data;
         filterDanmaku({ disableLeave, disableType });
@@ -317,7 +315,6 @@ const mouseLeavePlayer = (() => {
         if (timer) clearTimeout(timer);
         if (videoRef.value && !videoRef.value.paused) {
             timer = window.setTimeout(() => {
-                controlRef.value?.showMenu('');
                 showControl.value = false;
             }, 3000);
         }
@@ -332,7 +329,6 @@ const mouseMoveOnPlayer = (() => {
         showControl.value = true;
         timer = window.setTimeout(() => {
             if (!videoRef.value?.paused) {
-                controlRef.value?.showMenu('');
                 showControl.value = false;
             }
         }, 3000);
@@ -360,6 +356,11 @@ onMounted(() => {
     controlRef.value?.setResource(resource, maxQuality.value);
     controlRef.value?.setpPlaybackSpeed(options.playbackSpeed!);
     playerOptions.value = options;
+
+    nextTick(() => {
+        //先执行一遍过滤弹幕
+        filterDanmaku({ disableLeave, disableType });
+    })
 });
 
 onBeforeUnmount(() => {

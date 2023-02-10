@@ -7,44 +7,56 @@
     <div class="wplayer-control-box" :class="mobile ? 'wplayer-control-box-mobile' : ''">
         <!--控制栏左-->
         <div class="control-left">
-            <base-button type="text" @click="playOrPause">
+            <div class="control-btn play" type="text" @click="playOrPause">
                 <svg-icon class="control-icon" :name="videoInfo.currentPlayIcon"></svg-icon>
-            </base-button>
-            <span class="time-text">{{ toTimeText(videoInfo.currentTime) }} / {{ toTimeText(videoInfo.duration)
-            }}</span>
+            </div>
+            <span class="time-text">
+                {{ toTimeText(videoInfo.currentTime) }} / {{ toTimeText(videoInfo.duration) }}
+            </span>
         </div>
         <!--控制栏中(全屏状态下的弹幕发送区)-->
         <div :class="`control-center${fullState ? '-full' : ''}`"></div>
         <!--控制栏右-->
-        <div class="control-right">
-            <base-button v-show="!mobile || fullState" class="control-right-btn" type="text" @click="showMenu('quality')">
-                {{ videoInfo.qualityText }}
-            </base-button>
-            <div class="quality-menu" v-show="menus.quality">
-                <div v-for="(value, key) in videoInfo.resource" :key="key">
-                    <base-button type="text" @click="setQuality(key)">{{ value.name ? value.name : key }}</base-button>
+        <div class="control-right" :class="fullState ? 'control-right-full' : ''">
+            <!-- 清晰度 -->
+            <div v-show="!mobile || fullState" class="control-btn quality">
+                <span>{{ videoInfo.qualityText }}</span>
+                <div class="quality-menu">
+                    <ul>
+                        <li v-for="(value, key) in videoInfo.resource" :key="key" @click="setQuality(key)">
+                            {{ value.name ? value.name : key }}
+                        </li>
+                    </ul>
+                    <div class="placeholder"></div>
                 </div>
             </div>
-            <base-button v-show="!mobile || fullState" class="control-right-btn" type="text" @click="showMenu('speed')">
-                {{ videoInfo.speedText }}
-            </base-button>
-            <div class="speed-menu" v-show="menus.speed">
-                <span v-for="(item, index) in videoInfo.playbackSpeed" :key="index">
-                    <base-button type="text" @click="setSpeed(item)">{{ item === 1 ? '1.0x' : `${item}x` }}
-                    </base-button>
-                </span>
+            <!-- 倍速 -->
+            <div v-show="!mobile || fullState" class="control-btn speed">
+                <span>{{ videoInfo.speedText }}</span>
+                <div class="speed-menu">
+                    <ul>
+                        <li v-for="(item, index) in videoInfo.playbackSpeed" :key="index" @click="setSpeed(item)">
+                            {{ item === 1 ? '1.0x' : `${item}x` }}
+                        </li>
+                    </ul>
+                    <div class="placeholder"></div>
+                </div>
             </div>
             <!-- 音量 -->
-            <base-button class="right-icon" type="text" @click="showMenu('volume')">
+            <div class="control-btn volume">
                 <svg-icon class="control-icon" name="volume"></svg-icon>
-            </base-button>
-            <div class="volume" v-show="menus.volume">
-                <base-slider class="slider" :mobile="mobile" :color="theme" vertical :value="videoInfo.volume"
-                    @changeValue="setVolume" />
+                <div class="volume-menu">
+                    <div class="slider-container">
+                        <base-slider class="slider" :mobile="mobile" vertical :value="videoInfo.volume" :color="theme"
+                            @changeValue="setVolume" />
+                    </div>
+                    <div class="placeholder"></div>
+                </div>
             </div>
-            <base-button class="right-icon" type="text" @click="fullScreen">
+            <!-- 全屏 -->
+            <div class="control-btn" type="text" @click="fullScreen">
                 <svg-icon class="control-icon" name="fullScreen"></svg-icon>
-            </base-button>
+            </div>
         </div>
     </div>
 </template>
@@ -52,10 +64,10 @@
 <script setup lang="ts">
 import useConfig from '../hooks/config';
 import SvgIcon from "./svg-icon.vue";
-import BaseButton from "./base-button.vue";
 import BaseSlider from './base-slider.vue';
 import useFullScreen from '../hooks/full-screen';
 import { ref, onMounted, reactive } from 'vue';
+import { QualityType } from '../types/options';
 
 const emit = defineEmits(['playChange', 'qualityChange', 'full', 'progressChange', 'volumeChange', 'speedChange', 'showMsg']);
 
@@ -78,12 +90,6 @@ const videoIconState = {
     PAUSE: "pause",
     REPLAY: "replay"
 }
-
-const menus: any = reactive({
-    speed: false,
-    volume: false,
-    quality: false,
-})
 
 const videoInfo = reactive({
     resource: {} as QualityType,//视频资源
@@ -168,7 +174,6 @@ const setQuality = (quality: number) => {
     const play = videoInfo.currentPlayIcon === videoIconState.PAUSE ? true : false;
 
     emit("qualityChange", quality, videoInfo.currentTime, play);
-    showMenu("");
 }
 
 //设置倍速
@@ -178,7 +183,6 @@ const setSpeed = (speed: number) => {
     } else {
         videoInfo.speedText = "倍速";
     }
-    menus.speed = false;
     emit('speedChange', speed);
 }
 
@@ -226,18 +230,6 @@ const toTimeText = (time: number) => {
     return mm + ":" + ss;
 }
 
-//打开或关闭菜单
-const showMenu = (name: any) => {
-    //关闭除了name以外所有的菜单
-    for (let key in menus) {
-        if (key == name) {
-            menus[key] = !menus[key];
-            continue;
-        }
-        menus[key] = false;
-    }
-}
-
 //将方法暴露给父组件
 defineExpose({
     playOrPause,
@@ -247,7 +239,6 @@ defineExpose({
     fastForward,
     setResource,
     setpPlaybackSpeed,
-    showMenu
 })
 
 onMounted(() => {
@@ -264,23 +255,38 @@ onMounted(() => {
 .wplayer-control-box {
     display: flex;
 
-    //图标
-    .control-icon {
+    .control-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         box-sizing: border-box;
-        padding: 2px;
-        width: 30px;
-        height: 30px;
-        margin-top: 8px;
+        color: #fff;
+        font-size: 14px;
+        height: 46px;
+        cursor: pointer;
+
+        //图标
+        .control-icon {
+            box-sizing: border-box;
+            width: 36px;
+            height: 36px;
+            padding: 0 6px;
+        }
     }
+
 
     .control-left {
         width: 200px;
         display: flex;
 
+        .play {
+            padding: 0 12px;
+        }
+
         .time-text {
             color: #fff;
             font-size: 14px;
-            margin-top: 15px;
+            margin-top: 14px;
         }
     }
 
@@ -293,66 +299,140 @@ onMounted(() => {
     }
 
     .control-right {
+        box-sizing: border-box;
         display: flex;
         white-space: nowrap;
         justify-content: space-between;
         width: 230px;
+        padding-right: 12px;
 
-        .control-right-btn {
-            padding: 0 10px;
-            margin-top: 9px;
-            line-height: 30px;
+        // 空白占位
+        .placeholder {
+            width: 100%;
+            height: 20px;
+            background-color: transparent;
         }
+    }
 
-        .quality-menu {
-            width: 60px;
-            bottom: 56px;
-            right: 156px;
-            position: absolute;
-            text-align: center;
-            border-color: transparent;
-            border-radius: 5px;
-            background: rgba(0, 0, 0, 0.5);
-        }
+    .control-right-full {
+        width: 230px;
+    }
+}
 
+// 倍速按钮
+.speed {
+    padding: 0 6px;
+
+    &:hover {
         .speed-menu {
-            width: 60px;
-            bottom: 56px;
-            right: 110px;
-            position: absolute;
-            text-align: center;
+            display: block;
+        }
+    }
+
+    // 倍速菜单
+    .speed-menu {
+        width: 60px;
+        bottom: 36px;
+        right: 108px;
+        display: none;
+        position: absolute;
+
+        ul {
+            margin: 0;
+            padding: 0;
             border-color: transparent;
             border-radius: 5px;
             background: rgba(0, 0, 0, 0.5);
+            list-style: none;
 
-            span {
-                display: block;
+            li {
+                color: #fff;
+                font-size: 14px;
+                line-height: 36px;
+                padding: 0;
+                margin: 0;
+                text-align: center;
+
+                &:hover {
+                    background: rgba(0, 0, 0, 0.2);
+                }
             }
-        }
-
-        .volume {
-            width: 32px;
-            height: 140px;
-            right: 70px;
-            bottom: 56px;
-            border-radius: 5px;
-            position: absolute;
-            background: rgba(0, 0, 0, 0.7);
-
-            .slider {
-                position: absolute;
-                top: 0;
-                left: 14px;
-                height: 116px;
-            }
-        }
-
-        .right-icon {
-            padding: 0 10px;
         }
     }
 }
 
+// 清晰度按钮
+.quality {
+    padding: 0 6px;
+
+    &:hover {
+        .quality-menu {
+            display: block;
+        }
+    }
+
+    // 清晰度菜单
+    .quality-menu {
+        width: 60px;
+        bottom: 36px;
+        right: 166px;
+        display: none;
+        position: absolute;
+
+        ul {
+            margin: 0;
+            padding: 0;
+            border-color: transparent;
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.5);
+            list-style: none;
+
+            li {
+                color: #fff;
+                font-size: 14px;
+                line-height: 36px;
+                padding: 0;
+                margin: 0;
+                text-align: center;
+
+                &:hover {
+                    background: rgba(0, 0, 0, 0.2);
+                }
+            }
+        }
+    }
+}
+
+// 音量按钮
+.volume {
+    &:hover {
+        .volume-menu {
+            display: block;
+        }
+    }
+
+    // 音量菜单
+    .volume-menu {
+        width: 32px;
+        height: 140px;
+        right: 70px;
+        bottom: 56px;
+        border-radius: 5px;
+        position: absolute;
+        display: none;
+        background: rgba(0, 0, 0, 0.7);
+
+        .slider-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+}
+
+// 移动端控制栏
 .wplayer-control-box-mobile {
     .control-center {
         width: calc(100% - 280px);
@@ -364,6 +444,22 @@ onMounted(() => {
 
     .control-right {
         width: 120px;
+
+        .volume-menu {
+            right: 82px;
+        }
+    }
+
+    .control-right-full {
+        width: 230px;
+
+        .volume-menu {
+            right: 70px;
+        }
+
+        .quality-menu {
+            right: 172px;
+        }
     }
 }
 </style>

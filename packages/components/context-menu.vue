@@ -42,7 +42,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import config from '../../package.json';
+import * as config from '../../package.json';
 
 
 const emit = defineEmits(["mirror"]);

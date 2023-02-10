@@ -1,3 +1,5 @@
+import { OptionsType } from "../types/options";
+
 export function handleOptions(options: OptionsType | undefined) {
     const defaultOptions: OptionsType = {
         resource: "",

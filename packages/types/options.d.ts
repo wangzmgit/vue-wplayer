@@ -1,5 +1,6 @@
+import { DanmakuType } from "./danmaku";
 
-interface QualityType {
+export interface QualityType {
     [key: number]: {
         name?: string,
         url: string,
@@ -7,15 +8,14 @@ interface QualityType {
     }
 }
 
-interface DanmakuOptionsType {
+export interface DanmakuOptionsType {
     open: boolean,
     placeholder?: string,
     data?: Array<DanmakuType>,
     send?: (danmaku: DanmakuType) => void
 }
 
-
-interface OptionsType {
+export interface OptionsType {
     resource: string | QualityType,
     cover?: string,
     type?: string,//视频类型

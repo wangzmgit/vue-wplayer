@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import dts from 'vite-plugin-dts';
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 
 export default defineConfig({
   plugins: [
@@ -15,7 +16,8 @@ export default defineConfig({
       iconDirs: [resolve(process.cwd(), 'packages/icons')],
       // 指定symbolId格式
       symbolId: 'icon-[dir]-[name]',
-    })
+    }),
+    cssInjectedByJsPlugin(),
   ],
   resolve: {
     alias: {

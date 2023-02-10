@@ -24,11 +24,6 @@
     "packages/**/*.d.ts",
     "packages/**/*.vue",
   ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ],
   "type": [
     "node"
   ]
