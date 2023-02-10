@@ -16,7 +16,7 @@ import Hls from "hls.js";
 const hls = ref<Hls | null>(null);
 const options = {
   resource: "视频链接",
-  type: "hls",
+  type: "custom",
   customType: function (player: HTMLVideoElement, url: string) {
     hls.value = new Hls()
     hls.value.loadSource(url);
@@ -40,7 +40,7 @@ import flvjs from 'flv.js'
 
 const options = {
   resource: "视频链接",
-  type: "flv",
+  type: "custom",
   customType: function (player: HTMLVideoElement, url: string) {
     const flv = flvjs.createPlayer({
       type:'flv',
@@ -48,6 +48,28 @@ const options = {
     });
     flv.attachMediaElement(player);
     flv.load();
+  },
+  ...
+}
+```
+
+## DASH
+安装 dashjs
+```
+npm install dashjs --save
+```
+
+```js
+import dashjs from "dashjs";
+
+let dash: dashjs.MediaPlayerClass;
+
+const options = {
+  resource: "视频链接",
+  type: "custom",
+  customType: function (player: HTMLVideoElement, url: string) {
+    dash = dashjs.MediaPlayer().create();
+    dash.initialize(player, url, false);
   },
   ...
 }
