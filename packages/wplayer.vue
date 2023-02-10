@@ -13,7 +13,7 @@
             </div>
             <!-- 弹幕容器 -->
             <danmaku-container ref="danmakuRef" v-if="playerOptions?.danmaku?.open && showDanmaku"
-                :overlapping="overlapping" :paused="videoRef?.paused" :list="danmakuList" />
+                :overlapping="overlapping" :paused="videoRef?.paused" />
             <!-- 播放器消息 -->
             <player-msg v-show="showMsg" :msg="msg"></player-msg>
             <!-- 缓冲 -->
@@ -22,8 +22,8 @@
             <context-menu ref="menuRef" @mirror="setMirror"></context-menu>
         </div>
         <!-- 发送弹幕 -->
-        <danmaku-send v-if="playerOptions?.danmaku?.open" :mobile="playerOptions.mobile" :show="showDanmaku"
-            :disableType="disableType" :disableLeave="disableLeave" :theme="playerOptions?.theme"
+        <danmaku-send ref="danmakuSendRef" v-if="playerOptions?.danmaku?.open" :mobile="playerOptions.mobile"
+            :show="showDanmaku" :disableType="disableType" :disableLeave="disableLeave" :theme="playerOptions?.theme"
             :danmakuOptions="playerOptions.danmaku" @send="sendDanmaku" @show-msg="changeMsg"
             @set-opacity="setDanmakuOpacity" @change-show="changeShowDanmaku" @set-filter="filterDanmaku" />
     </div>
@@ -41,13 +41,14 @@ import DanmakuSend from './components/danmaku-send.vue';
 import ContextMenu from './components/context-menu.vue';
 import PlayerBuffering from './components/player-buffering.vue';
 import DanmakuContainer from './components/danmaku-container.vue';
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 
 import { handleOptions } from "./hooks/options";
 
 const props = defineProps<{
+    danmakuKey?: number
     options: OptionsType
-}>()
+}>();
 
 //消息相关
 const { msg, showMsg, changeMsg } = useMsg();
@@ -63,6 +64,7 @@ const { maxQuality, getInitialQuality } = useQuality();
 const playerOptions = ref<null | OptionsType>(null);
 const videoRef = ref<HTMLVideoElement | null>(null);
 const controlRef = ref<InstanceType<typeof PlayerControl> | null>(null);
+const danmakuSendRef = ref<InstanceType<typeof DanmakuSend> | null>(null);
 
 //播放器事件-初始化
 const initVideo = () => {
@@ -127,32 +129,40 @@ const setPlayState = (play: boolean) => {
 
 //设置视频当前进度
 const setProgress = (currentTime: number) => {
-    videoRef.value!.currentTime = currentTime;
-    if (danmakuRef.value) {
-        danmakuRef.value.clearDanmaku();
+    if (videoRef.value) {
+        videoRef.value.currentTime = currentTime;
+        if (danmakuRef.value) {
+            danmakuRef.value.clearDanmaku();
+        }
     }
 }
 
 //设置清晰度
 const setQuality = (quality: number, currentTime: number, play: boolean) => {
-    if (playerOptions.value?.customQualityChange) {
-        playerOptions.value.customQualityChange(quality);
-    } else {
-        handleDiffQualityResource(quality, playerOptions.value!)
+    if (playerOptions.value && videoRef.value) {
+        if (playerOptions.value.customQualityChange) {
+            playerOptions.value.customQualityChange(quality);
+        } else {
+            handleDiffQualityResource(quality, playerOptions.value!)
+        }
+        //设置播放时间和状态
+        videoRef.value.currentTime = currentTime;
+        setPlayState(play);
     }
-    //设置播放时间和状态
-    videoRef.value!.currentTime = currentTime;
-    setPlayState(play);
 }
 
 //设置倍速
 const setSpeed = (speed: number) => {
-    videoRef.value!.playbackRate = speed;
+    if (videoRef.value) {
+        videoRef.value.playbackRate = speed;
+    }
 }
 
 //设置音量
 const setVolume = (volume: number) => {
-    videoRef.value!.volume = volume / 100;
+    if (videoRef.value) {
+        videoRef.value.volume = volume / 100;
+    }
 }
 
 //处理不同清晰度视频资源
@@ -160,23 +170,25 @@ const handleDiffQualityResource = (quality: number, options: OptionsType) => {
     const resource = options.resource as QualityType;
     const type = resource[quality].type || options.type;
 
-    if (type !== "mp4") {
-        if (options.customType) {
-            options.customType(videoRef.value!, resource[quality].url);
-        }
-    } else {
-        if (options.blob) {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', resource[quality].url);
-            xhr.responseType = "blob";
-            xhr.onload = () => {
-                if (xhr.status === 200) {
-                    videoRef.value!.src = URL.createObjectURL(xhr.response);
-                }
+    if (videoRef.value) {
+        if (type !== "mp4") {
+            if (options.customType) {
+                options.customType(videoRef.value, resource[quality].url);
             }
-            xhr.send();
         } else {
-            videoRef.value!.src = resource[quality].url;
+            if (options.blob) {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', resource[quality].url);
+                xhr.responseType = "blob";
+                xhr.onload = () => {
+                    if (xhr.status === 200 && videoRef.value) {
+                        videoRef.value.src = URL.createObjectURL(xhr.response);
+                    }
+                }
+                xhr.send();
+            } else {
+                videoRef.value.src = resource[quality].url;
+            }
         }
     }
 
@@ -239,10 +251,25 @@ const filterDanmaku = (filter: FilterDanmakuType) => {
     danmakuList.value = originalDanmaku.filter((item) => {
         return !isDisableType(item, filter.disableType) && (Math.floor(Math.random() * 10) + 1) > filter.disableLeave;
     });
+
+    // 更新弹幕容器内容
+    danmakuRef.value?.updateDanmaku(danmakuList.value);
+
+    // 更新弹幕数量
+    danmakuSendRef.value?.updateDanmakuCount(danmakuList.value.length);
 }
 
 //先执行一遍过滤弹幕
 filterDanmaku({ disableLeave, disableType });
+
+// 监听传入弹幕改变
+watch(() => props.danmakuKey, () => {
+    console.log("改变")
+    if (props.options.danmaku?.data) {
+        danmakuList.value = props.options.danmaku.data;
+        filterDanmaku({ disableLeave, disableType });
+    }
+})
 
 //右键菜单
 const menuRef = ref<InstanceType<typeof ContextMenu> | null>(null);
@@ -288,7 +315,7 @@ const mouseLeavePlayer = (() => {
     let timer: number | null = null;
     return () => {
         if (timer) clearTimeout(timer);
-        if (!videoRef.value!.paused) {
+        if (videoRef.value && !videoRef.value.paused) {
             timer = window.setTimeout(() => {
                 controlRef.value?.showMenu('');
                 showControl.value = false;

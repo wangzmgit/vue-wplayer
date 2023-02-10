@@ -5,7 +5,6 @@
 <script setup lang="ts">
 import { ref, reactive } from "vue";
 const props = withDefaults(defineProps<{
-    list: Array<DanmakuType>
     paused: boolean
     overlapping: boolean
 }>(), {
@@ -13,9 +12,11 @@ const props = withDefaults(defineProps<{
     overlapping: true
 });
 
+
+let currentTime = 0;//当前时间
+let isPaused = props.paused;//是否暂停
+let danmakuList: Array<DanmakuType> = [];
 const danmakuRef = ref<HTMLElement | null>(null);
-const isPaused = ref(props.paused);//是否暂停
-const currentTime = ref(0);//当前时间
 const danmakuTunnel = reactive({
     row: [] as Array<{
         speed: number,
@@ -26,6 +27,12 @@ const danmakuTunnel = reactive({
     bottom: [] as Array<number>,
 })
 
+// 更新弹幕
+const updateDanmaku = (danmakus: Array<DanmakuType>) => {
+    console.log("更新弹幕")
+    danmakuList = danmakus;
+}
+
 // 播放暂停
 const startOrPause = (start: boolean) => {
     const danmakuNodes = danmakuRef.value?.childNodes || [];
@@ -33,7 +40,7 @@ const startOrPause = (start: boolean) => {
     for (let i = 0; i < danmakuNodes.length; i++) {
         (danmakuNodes[i] as HTMLElement).style.animationPlayState = state;
     }
-    isPaused.value = !start;
+    isPaused = !start;
 }
 
 //清除弹幕
@@ -53,14 +60,14 @@ const setOpacity = (opacity: number) => {
 
 //更新时间
 const timeUpdate = (time: number) => {
-    if (Math.round(time) !== currentTime.value) {
-        currentTime.value = Math.round(time);
+    if (Math.round(time) !== currentTime) {
+        currentTime = Math.round(time);
         //绘制弹幕
-        if (!props.list) {
+        if (!danmakuList) {
             return;
         }
-        const currentDanmaku = props.list.filter((item: DanmakuType) => {
-            return item.time === currentTime.value;
+        const currentDanmaku = danmakuList.filter((item: DanmakuType) => {
+            return item.time === currentTime;
         })
 
         currentDanmaku.map((item: DanmakuType) => {
@@ -152,7 +159,7 @@ const drawDanmaku = (draw: DrawDanmakuType, send: boolean) => {
     if (draw.type == 0) {
         //设置轨道
         const duration = (danmakuRef.value?.offsetWidth || 750) / 150;
-        const rowTunnel = getRowTunnel(draw.text, currentTime.value, duration);
+        const rowTunnel = getRowTunnel(draw.text, currentTime, duration);
         if (rowTunnel === -1) return;
         item.style.top = `${rowTunnel * 26}px`;
         item.style.animation = `danmaku ${duration}s linear`
@@ -163,7 +170,7 @@ const drawDanmaku = (draw: DrawDanmakuType, send: boolean) => {
         }
     } else {
         //固定弹幕
-        const fixedTunnel = getFixedTunnel(draw.type, currentTime.value);
+        const fixedTunnel = getFixedTunnel(draw.type, currentTime);
         if (fixedTunnel === -1) return;
         item.style.width = "100%";
         item.style.textAlign = "center";
@@ -184,7 +191,7 @@ const drawDanmaku = (draw: DrawDanmakuType, send: boolean) => {
     });
     item.classList.add(`danmaku-${draw.type === 0 ? 'row' : 'center'}-move`);
     //如果当前为暂停状态则暂停弹幕动画
-    if (isPaused.value) {
+    if (isPaused) {
         item.style.animationPlayState = "paused";
     }
 }
@@ -194,7 +201,8 @@ defineExpose({
     setOpacity,
     drawDanmaku,
     clearDanmaku,
-    startOrPause
+    startOrPause,
+    updateDanmaku
 });
 </script>
   

@@ -1,7 +1,7 @@
 <template>
     <div class="wplayer-bottom-bar" :class="mobile ? 'wplayer-bottom-bar-mobile' : ''">
         <div class="bottom-left">
-            <span v-if="!mobile" class="danmaku-amount">{{ danmakuOptions.data?.length }}条弹幕</span>
+            <span v-if="!mobile" class="danmaku-amount">{{ danmakuCount }}条弹幕</span>
             <div class="danmaku-switch">
                 <base-switch :value="danmaku" :color="theme" @change="setShow"></base-switch>
             </div>
@@ -196,8 +196,18 @@ const sendDanmaku = () => {
 
     emit('send', danmakuForm);
     danmakuForm.text = "";
+    danmakuCount.value++;
 }
 
+// 更新弹幕数量
+const danmakuCount = ref(0);
+const updateDanmakuCount = (count: number) => {
+    danmakuCount.value = count;
+}
+
+defineExpose({
+    updateDanmakuCount
+})
 </script>
   
 <style lang="less">
