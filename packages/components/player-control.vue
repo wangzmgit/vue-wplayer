@@ -1,8 +1,8 @@
 <template>
     <!--时间轴-->
     <div class="wplayer-time-line">
-        <base-slider :mobile="mobile" :color="theme" :value="schedule(videoInfo.currentTime)"
-            :loaded="schedule(videoInfo.loadedTime)" @changeValue="currentTimeChange" />
+        <base-slider :color="theme" :value="schedule(videoInfo.currentTime)" :loaded="schedule(videoInfo.loadedTime)"
+            @changeValue="currentTimeChange" />
     </div>
     <div class="wplayer-control-box" :class="mobile ? 'wplayer-control-box-mobile' : ''">
         <!--控制栏左-->
@@ -47,7 +47,7 @@
                 <svg-icon class="control-icon" name="volume"></svg-icon>
                 <div class="volume-menu">
                     <div class="slider-container">
-                        <base-slider class="slider" :mobile="mobile" vertical :value="videoInfo.volume" :color="theme"
+                        <base-slider class="slider" vertical :value="videoInfo.volume" :color="theme"
                             @changeValue="setVolume" />
                     </div>
                     <div class="placeholder"></div>

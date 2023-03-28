@@ -12,8 +12,8 @@
                 <div class="wplayer-danmaku-setting-menu">
                     <div class="setting-menu-content">
                         <p class="danmaku-menu-title">弹幕屏蔽等级 ({{ filterSetting.disableLeave }})</p>
-                        <base-slider class="opacity" :mobile="mobile" :max="10" step :color="theme"
-                            :value="filterSetting.disableLeave" @change-value="setDisableLeave" />
+                        <base-slider class="opacity" :max="10" step :color="theme" :value="filterSetting.disableLeave"
+                            @change-value="setDisableLeave" />
                         <p class="danmaku-menu-title">禁用弹幕类型</p>
                         <div class="danmaku-filter">
                             <ul class="wplayer-radio-group" @click="setDisableType">
@@ -22,8 +22,7 @@
                             </ul>
                         </div>
                         <p class="danmaku-menu-title">弹幕不透明度</p>
-                        <base-slider class="opacity" :mobile="mobile" :color="theme" :value="opacity"
-                            @changeValue="setOpacity" />
+                        <base-slider class="opacity" :color="theme" :value="opacity" @changeValue="setOpacity" />
                     </div>
                     <div class="placeholder"></div>
                 </div>
@@ -87,7 +86,6 @@ const props = withDefaults(defineProps<{
     danmakuOptions: DanmakuOptionsType
 }>(), {
     show: true,
-    mobile: false,
 })
 
 const danmakuForm = reactive<DanmakuType>({
