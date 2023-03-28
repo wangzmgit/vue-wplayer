@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onMounted, ref, nextTick } from 'vue';
+import { watch, onMounted, ref, nextTick, onBeforeUnmount } from 'vue';
 
 const emit = defineEmits(["changeValue"]);
 const props = withDefaults(defineProps<{
@@ -20,7 +20,6 @@ const props = withDefaults(defineProps<{
     max?: number
     min?: number
     vertical?: boolean
-    mobile: boolean
     color: string
     step?: boolean
 }>(), {
@@ -29,7 +28,6 @@ const props = withDefaults(defineProps<{
     max: 100,
     min: 0,
     vertical: false,
-    mobile: false,
     color: "#18a058",
     step: false
 });
@@ -60,28 +58,25 @@ const clickSlider = (e: MouseEvent) => {
 }
 
 // 滑动滑动条
-const slidingSlider = (mobile: boolean) => {
-    if (!mobile) {
-        // PC端
-        blockRef.value!.onmousedown = function () {
-            document.onmousemove = function (e) {
-                sliderValueChange(e);
-            };
-            document.onmouseup = function () {
-                document.onmousemove = document.onmouseup = null;
-            };
+const slidingSlider = () => {
+    // PC端
+    blockRef.value!.onmousedown = function () {
+        document.onmousemove = function (e) {
+            sliderValueChange(e);
         };
-    } else {
-        //移动端
-        blockRef.value!.ontouchstart = function () {
-            document.ontouchmove = function (e) {
-                sliderValueChange(e);
-            };
-            document.ontouchend = function () {
-                document.ontouchmove = document.ontouchend = null;
-            };
+        document.onmouseup = function () {
+            document.onmousemove = document.onmouseup = null;
         };
-    }
+    };
+    //移动端
+    blockRef.value!.ontouchstart = function () {
+        document.ontouchmove = function (e) {
+            sliderValueChange(e);
+        };
+        document.ontouchend = function () {
+            document.ontouchmove = document.ontouchend = null;
+        };
+    };
 }
 
 //滑动条值改变
@@ -117,19 +112,6 @@ const sliderValueChange = (e: MouseEvent | TouchEvent) => {
     emit('changeValue', Math.round((props.max - props.min) * percentage * 100) / 100);
 }
 
-watch(() => props.mobile, (newValue) => {
-    if (newValue) {
-        //切换为touch，清除mouse事件
-        document.onmousemove = document.onmouseup = null;
-    } else {
-        //切换为mouse，清除touch事件
-        document.ontouchmove = document.ontouchend = null;
-    }
-    nextTick(() => {
-        slidingSlider(newValue);
-    });
-}, { immediate: true });
-
 watch(() => props.loaded, (newValue) => {
     activeLoaded.value = Math.round((newValue / (props.max - props.min)) * 10000) / 100;
 });
@@ -139,8 +121,16 @@ watch(() => props.value, (newValue) => {
 });
 
 onMounted(() => {
+    slidingSlider();
     activePercentage.value = Math.round((props.value / (props.max - props.min)) * 100);
 });
+
+onBeforeUnmount(() => {
+    //清除touch事件
+    document.ontouchmove = document.ontouchend = null;
+    //清除mouse事件
+    document.onmousemove = document.onmouseup = null;
+})
 </script>
 
 <style lang="less">
