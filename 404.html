@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="generator" content="VuePress 2.0.0-beta.51">
+    <style>
+      :root {
+        --c-bg: #fff;
+      }
+      html.dark {
+        --c-bg: #22272e;
+      }
+      html, body {
+        background-color: var(--c-bg);
+      }
+    </style>
+    <script>
+      const userMode = localStorage.getItem('vuepress-color-scheme');
+			const systemDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+			if (userMode === 'dark' || (userMode !== 'light' && systemDarkMode)) {
+				document.documentElement.classList.toggle('dark', true);
+			}
+    </script>
+    <link rel="icon" href="/logo.png"><title>VueWPlayer</title><meta name="description" content="基于vue + ts开发的弹幕播放器">
+    <link rel="modulepreload" href="/assets/app.60d75c29.js"><link rel="modulepreload" href="/assets/404.html.fb9c8333.js"><link rel="modulepreload" href="/assets/404.html.c3e557d0.js"><link rel="prefetch" href="/assets/index.html.7f0f58cf.js"><link rel="prefetch" href="/assets/index.html.3f87ae3c.js"><link rel="prefetch" href="/assets/danmaku.html.edb88f90.js"><link rel="prefetch" href="/assets/parameters.html.4988d84c.js"><link rel="prefetch" href="/assets/quantity.html.5f331fc3.js"><link rel="prefetch" href="/assets/quick_start.html.017fcb23.js"><link rel="prefetch" href="/assets/shortcut.html.6a0df730.js"><link rel="prefetch" href="/assets/streaming.html.a40bf714.js"><link rel="prefetch" href="/assets/index.html.2bfdde85.js"><link rel="prefetch" href="/assets/index.html.8c31ae4e.js"><link rel="prefetch" href="/assets/danmaku.html.1c6f01ef.js"><link rel="prefetch" href="/assets/parameters.html.e84c2246.js"><link rel="prefetch" href="/assets/quantity.html.fe4cca11.js"><link rel="prefetch" href="/assets/quick_start.html.d2f30f27.js"><link rel="prefetch" href="/assets/shortcut.html.a1e1f93b.js"><link rel="prefetch" href="/assets/streaming.html.9ccf16fa.js"><link rel="prefetch" href="/assets/WPlayer.8fc76b3e.js">
+    <link rel="stylesheet" href="/assets/style.84d1ec61.css">
+  </head>
+  <body>
+    <div id="app"><!--[--><div class="theme-container"><main class="page"><div class="theme-default-content"><h1>404</h1><blockquote>我们怎么到这来了？</blockquote><a href="/" class="">返回首页</a></div></main></div><!----><!--]--></div>
+    <script type="module" src="/assets/app.60d75c29.js" defer></script>
+  </body>
+</html>
